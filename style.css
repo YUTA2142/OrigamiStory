@@ -107,6 +107,7 @@ section {
   justify-content: start;
   margin-top: 16px;
   border: 1px solid var(--border);
+  background-color: #fff;
   background-image:
     linear-gradient(to right, var(--border) 1px, transparent 1px),
     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
@@ -126,7 +127,7 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: transparent;
   cursor: pointer;
   position: relative;
   transition: border 0.2s ease, transform 0.2s ease;
@@ -136,47 +137,29 @@ section {
   border-radius: 0;
 }
 
-.cell::before {
-  content: "";
-  width: 100%;
-  height: 100%;
-  display: none;
-  position: absolute;
-}
-
 .cell:hover {
   box-shadow: inset 0 0 0 2px var(--accent);
   transform: translateY(-2px);
 }
 
-.shape-square::before {
+.shape-square {
   background: var(--accent);
-  border-radius: 0;
-  display: block;
 }
 
-.shape-triangle-ne::before,
-.shape-triangle-nw::before,
-.shape-triangle-se::before,
-.shape-triangle-sw::before {
-  background: var(--accent-dark);
-  display: block;
+.shape-triangle-ne {
+  background: linear-gradient(225deg, var(--accent-dark) 50%, transparent 50%);
 }
 
-.shape-triangle-ne::before {
-  clip-path: polygon(100% 0, 100% 100%, 0 0);
+.shape-triangle-nw {
+  background: linear-gradient(135deg, var(--accent-dark) 50%, transparent 50%);
 }
 
-.shape-triangle-nw::before {
-  clip-path: polygon(0 0, 100% 0, 0 100%);
+.shape-triangle-se {
+  background: linear-gradient(315deg, var(--accent-dark) 50%, transparent 50%);
 }
 
-.shape-triangle-se::before {
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-
-.shape-triangle-sw::before {
-  clip-path: polygon(0 0, 100% 100%, 0 100%);
+.shape-triangle-sw {
+  background: linear-gradient(45deg, var(--accent-dark) 50%, transparent 50%);
 }
 
 .cell-readonly {

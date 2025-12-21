@@ -3,51 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrigamiStory - SVGパズルアップロード</title>
+  <title>OrigamiStory - 問題登録</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>OrigamiStory パズルアップロード</h1>
-    <p>SVGの問題文を表示し、4×4のマスに四角・三角を入力して回答します。</p>
+    <h1>OrigamiStory 問題登録</h1>
+    <p>SVGをアップロードし、4×4のマスで図形を登録します。</p>
   </header>
 
   <main>
     <section class="upload-panel">
-      <h2>1. 問題(SVG)を入力</h2>
+      <h2>1. SVGをアップロード</h2>
       <div class="upload-row">
         <label class="file-label">
           <span>問題SVG</span>
           <input type="file" id="question-svg-input" accept="image/svg+xml" />
         </label>
       </div>
-      <div class="svg-preview" id="question-svg-preview" aria-label="SVG question preview">
-        <p>ここに問題SVGが表示されます。</p>
-      </div>
       <div class="controls">
-        <button type="button" id="reset-question">問題をリセット</button>
+        <button type="button" id="reset-question">SVGをクリア</button>
       </div>
     </section>
 
-    <section class="answer-panel">
-      <h2>2. 回答を入力</h2>
-      <div class="upload-row">
-        <label class="file-label">
-          <span>回答キー(JSON)</span>
-          <input type="file" id="answer-key-input" accept="application/json" />
-        </label>
-      </div>
-      <div class="grid grid-tight" id="answer-grid" aria-label="4x4 answer grid"></div>
+    <section class="input-panel">
+      <h2>2. 図形を入力 (4×4)</h2>
+      <p>クリックで「空白 → 正方形 → 三角形」へ切り替えます。</p>
+      <div class="grid grid-tight" id="answer-grid" aria-label="4x4 shape grid"></div>
       <div class="controls">
-        <button type="button" id="check-answer">回答を確認</button>
-        <button type="button" id="reset-grid">リセット</button>
+        <button type="button" id="reset-grid">図形をリセット</button>
       </div>
-      <div id="result" class="result" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="preview-panel">
+      <h2>3. SVGプレビュー</h2>
+      <div class="svg-preview" id="question-svg-preview" aria-label="SVG preview">
+        <p>ここにアップロードしたSVGが表示されます。</p>
+      </div>
     </section>
   </main>
 
   <footer>
-    <p>OrigamiStory - 折り紙パズルのアップロード体験</p>
+    <p>OrigamiStory - 問題登録</p>
   </footer>
 
   <script src="app.js"></script>

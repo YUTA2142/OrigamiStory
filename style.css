@@ -179,6 +179,36 @@ section {
   flex-wrap: wrap;
 }
 
+.register-status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f4f4ff;
+  border: 1px solid #d8d8ff;
+  color: #2b2b55;
+}
+
+.register-status.is-error {
+  background: #fff2f2;
+  border-color: #f4c6c6;
+  color: #a33a3a;
+}
+
+.register-status.is-success {
+  background: #f0fff5;
+  border-color: #c7f0d4;
+  color: #1f6f3d;
+}
+
+.register-output {
+  margin-top: 12px;
+  display: none;
+}
+
+.register-output.is-visible {
+  display: block;
+}
+
 button:not(.cell) {
   border: none;
   background: var(--accent);

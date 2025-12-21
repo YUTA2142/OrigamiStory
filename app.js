@@ -4,8 +4,12 @@ const answerGridElement = document.getElementById("answer-grid");
 const answerJsonInput = document.getElementById("answer-json");
 const resetButton = document.getElementById("reset-grid");
 const resetQuestionButton = document.getElementById("reset-question");
+const registerButton = document.getElementById("register-problem");
+const registerStatus = document.getElementById("register-status");
+const registerOutput = document.getElementById("register-output");
 
 const GRID_SIZE = 4;
+const STORAGE_KEY = "origamiStoryProblems";
 const STATES = [
   "empty",
   "square",
@@ -19,6 +23,23 @@ const answerState = Array.from({ length: GRID_SIZE }, () =>
   Array.from({ length: GRID_SIZE }, () => "empty")
 );
 let currentSvgText = "";
+
+function getStoredProblems() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return [];
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function setStoredProblems(problems) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
+}
 
 function renderGrid(gridElement, stateGrid, options = {}) {
   const { interactive = false, onCellUpdate = null } = options;
@@ -111,6 +132,9 @@ function resetQuestionGrid() {
 
 resetButton.addEventListener("click", resetGrid);
 resetQuestionButton.addEventListener("click", resetQuestionGrid);
+registerButton.addEventListener("click", () => {
+  handleRegister();
+});
 
 renderGrid(answerGridElement, answerState, {
   interactive: true,
@@ -143,6 +167,48 @@ function syncAnswerPayload() {
   answerJsonInput.value = JSON.stringify(payload);
 }
 
+function hasOnlySquares(grid) {
+  return grid.every((row) => row.every((cell) => cell === "square"));
+}
+
+function setRegisterStatus(message, type = "info") {
+  if (!registerStatus) {
+    return;
+  }
+  registerStatus.textContent = message;
+  registerStatus.classList.remove("is-error", "is-success");
+  if (type === "error") {
+    registerStatus.classList.add("is-error");
+  }
+  if (type === "success") {
+    registerStatus.classList.add("is-success");
+  }
+}
+
+function handleRegister() {
+  if (!currentSvgText) {
+    setRegisterStatus("問題SVGをアップロードしてください。", "error");
+    return;
+  }
+  if (!hasOnlySquares(answerState)) {
+    setRegisterStatus("答えは4×4すべて正方形で埋めてください。", "error");
+    return;
+  }
+  const problems = getStoredProblems();
+  const payload = {
+    svg: currentSvgText,
+    grid: answerState,
+    createdAt: new Date().toISOString()
+  };
+  problems.push(payload);
+  setStoredProblems(problems);
+  if (registerOutput) {
+    registerOutput.textContent = JSON.stringify(payload, null, 2);
+    registerOutput.classList.add("is-visible");
+  }
+  setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
+}
+
 questionSvgInput.addEventListener("change", (event) => {
   const file = event.target.files?.[0];
   if (!file) {
@@ -159,3 +225,4 @@ questionSvgInput.addEventListener("change", (event) => {
 
 clearSvgPreview();
 syncAnswerPayload();
+setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);

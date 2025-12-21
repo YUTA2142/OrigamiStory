@@ -42,6 +42,18 @@
         <p>ここにアップロードしたSVGが表示されます。</p>
       </div>
     </section>
+
+    <section class="register-panel">
+      <h2>4. 問題を登録</h2>
+      <p>問題SVGと答え（4×4の正方形）がそろったら登録します。</p>
+      <div class="controls">
+        <button type="button" id="register-problem">登録する</button>
+      </div>
+      <p class="register-status" id="register-status" role="status" aria-live="polite">
+        まだ登録されていません。
+      </p>
+      <pre class="code-sample register-output" id="register-output" aria-label="registered payload"></pre>
+    </section>
   </main>
 
   <footer>

@@ -117,11 +117,13 @@ function resetGrid() {
       answerState[row][col] = "empty";
     }
   }
-  renderGrid(answerGridElement, answerState, {
-    interactive: true,
-    onCellUpdate: syncAnswerPayload
-  });
-  syncAnswerPayload();
+  if (answerGridElement) {
+    renderGrid(answerGridElement, answerState, {
+      interactive: true,
+      onCellUpdate: syncAnswerPayload
+    });
+    syncAnswerPayload();
+  }
 }
 
 function resetQuestionGrid() {
@@ -130,22 +132,36 @@ function resetQuestionGrid() {
   syncAnswerPayload();
 }
 
-resetButton.addEventListener("click", resetGrid);
-resetQuestionButton.addEventListener("click", resetQuestionGrid);
-registerButton.addEventListener("click", () => {
-  handleRegister();
-});
+if (resetButton) {
+  resetButton.addEventListener("click", resetGrid);
+}
+if (resetQuestionButton) {
+  resetQuestionButton.addEventListener("click", resetQuestionGrid);
+}
+if (registerButton) {
+  registerButton.addEventListener("click", () => {
+    handleRegister();
+  });
+}
 
-renderGrid(answerGridElement, answerState, {
-  interactive: true,
-  onCellUpdate: syncAnswerPayload
-});
+if (answerGridElement) {
+  renderGrid(answerGridElement, answerState, {
+    interactive: true,
+    onCellUpdate: syncAnswerPayload
+  });
+}
 
 function clearSvgPreview() {
+  if (!questionSvgPreview) {
+    return;
+  }
   questionSvgPreview.innerHTML = "<p>ここに問題SVGが表示されます。</p>";
 }
 
 function renderSvgPreview(svgText) {
+  if (!questionSvgPreview) {
+    return;
+  }
   const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
   const svgElement = parsed.querySelector("svg");
   questionSvgPreview.innerHTML = "";
@@ -209,19 +225,21 @@ function handleRegister() {
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
 }
 
-questionSvgInput.addEventListener("change", (event) => {
-  const file = event.target.files?.[0];
-  if (!file) {
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = () => {
-    currentSvgText = typeof reader.result === "string" ? reader.result : "";
-    renderSvgPreview(currentSvgText);
-    syncAnswerPayload();
-  };
-  reader.readAsText(file);
-});
+if (questionSvgInput) {
+  questionSvgInput.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      currentSvgText = typeof reader.result === "string" ? reader.result : "";
+      renderSvgPreview(currentSvgText);
+      syncAnswerPayload();
+    };
+    reader.readAsText(file);
+  });
+}
 
 clearSvgPreview();
 syncAnswerPayload();

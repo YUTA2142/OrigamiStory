@@ -167,8 +167,8 @@ function syncAnswerPayload() {
   answerJsonInput.value = JSON.stringify(payload);
 }
 
-function hasOnlySquares(grid) {
-  return grid.every((row) => row.every((cell) => cell === "square"));
+function isGridComplete(grid) {
+  return grid.every((row) => row.every((cell) => cell !== "empty"));
 }
 
 function setRegisterStatus(message, type = "info") {
@@ -190,14 +190,14 @@ function handleRegister() {
     setRegisterStatus("問題SVGをアップロードしてください。", "error");
     return;
   }
-  if (!hasOnlySquares(answerState)) {
-    setRegisterStatus("答えは4×4すべて正方形で埋めてください。", "error");
+  if (!isGridComplete(answerState)) {
+    setRegisterStatus("答えは4×4すべてのマスを埋めてください。", "error");
     return;
   }
   const problems = getStoredProblems();
   const payload = {
     svg: currentSvgText,
-    grid: answerState,
+    grid: answerState.map((row) => row.slice()),
     createdAt: new Date().toISOString()
   };
   problems.push(payload);
@@ -216,7 +216,7 @@ questionSvgInput.addEventListener("change", (event) => {
   }
   const reader = new FileReader();
   reader.onload = () => {
-    currentSvgText = reader.result;
+    currentSvgText = typeof reader.result === "string" ? reader.result : "";
     renderSvgPreview(currentSvgText);
     syncAnswerPayload();
   };

@@ -104,6 +104,7 @@ section {
   grid-template-rows: repeat(4, 72px);
   gap: 8px;
   justify-content: start;
+  margin-top: 16px;
 }
 
 .cell {
@@ -120,28 +121,57 @@ section {
   transition: border 0.2s ease, transform 0.2s ease;
 }
 
+.cell::before {
+  content: "";
+  width: 42px;
+  height: 42px;
+  display: none;
+  position: absolute;
+}
+
 .cell:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
 }
 
 .shape-square::before {
-  content: "";
-  width: 36px;
-  height: 36px;
   background: var(--accent);
   border-radius: 6px;
   display: block;
 }
 
-.shape-triangle::before {
-  content: "";
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 36px solid var(--accent-dark);
+.shape-triangle-ne::before,
+.shape-triangle-nw::before,
+.shape-triangle-se::before,
+.shape-triangle-sw::before {
+  background: var(--accent-dark);
   display: block;
+}
+
+.shape-triangle-ne::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+
+.shape-triangle-nw::before {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.shape-triangle-se::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.shape-triangle-sw::before {
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+.cell-readonly {
+  cursor: default;
+  background: #f8f8ff;
+}
+
+.cell-readonly:hover {
+  border-color: var(--border);
+  transform: none;
 }
 
 .controls {
@@ -151,7 +181,7 @@ section {
   flex-wrap: wrap;
 }
 
-button {
+button:not(.cell) {
   border: none;
   background: var(--accent);
   color: white;
@@ -162,16 +192,18 @@ button {
   transition: background 0.2s ease;
 }
 
-button:hover {
+button:not(.cell):hover {
   background: var(--accent-dark);
 }
 
-button#reset-grid {
+button#reset-grid,
+button#reset-question {
   background: #cfd1ff;
   color: #2b2b55;
 }
 
-button#reset-grid:hover {
+button#reset-grid:hover,
+button#reset-question:hover {
   background: #b4b6ff;
 }
 

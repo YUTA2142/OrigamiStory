@@ -1,8 +1,8 @@
-const questionGridElement = document.getElementById("question-grid");
-const questionPreviewElement = document.getElementById("question-preview");
+const questionSvgInput = document.getElementById("question-svg-input");
+const questionSvgPreview = document.getElementById("question-svg-preview");
 const answerGridElement = document.getElementById("answer-grid");
 const resultElement = document.getElementById("result");
-const questionInput = document.getElementById("question-input");
+const answerKeyInput = document.getElementById("answer-key-input");
 const checkButton = document.getElementById("check-answer");
 const resetButton = document.getElementById("reset-grid");
 const resetQuestionButton = document.getElementById("reset-question");
@@ -117,7 +117,7 @@ function setResultMessage(message, status) {
 
 function compareAnswer() {
   if (!hasFilledCells(questionState)) {
-    setResultMessage("問題が入力されていません。", "failure");
+    setResultMessage("回答キーが読み込まれていません。", "failure");
     return;
   }
 
@@ -149,7 +149,7 @@ function fillGridState(targetState, data) {
   }
 }
 
-questionInput.addEventListener("change", (event) => {
+answerKeyInput.addEventListener("change", (event) => {
   const file = event.target.files?.[0];
   if (!file) {
     return;
@@ -159,14 +159,13 @@ questionInput.addEventListener("change", (event) => {
     try {
       const parsed = JSON.parse(reader.result);
       if (!validateAnswerKey(parsed)) {
-        setResultMessage("問題キーの形式が正しくありません。", "failure");
+        setResultMessage("回答キーの形式が正しくありません。", "failure");
         return;
       }
       fillGridState(questionState, parsed);
-      renderQuestionGrids();
-      setResultMessage("問題キーを読み込みました。", "success");
+      setResultMessage("回答キーを読み込みました。", "success");
     } catch (error) {
-      setResultMessage("問題キーJSONの読み込みに失敗しました。", "failure");
+      setResultMessage("回答キーJSONの読み込みに失敗しました。", "failure");
     }
   };
   reader.readAsText(file);
@@ -270,25 +269,14 @@ function compareWithTransformations(questionGrid, answerGrid) {
   );
 }
 
-function renderQuestionGrids() {
-  renderGrid(questionGridElement, questionState, {
-    interactive: true,
-    onCellUpdate: renderQuestionPreview
-  });
-  renderQuestionPreview();
-}
-
-function renderQuestionPreview() {
-  renderGrid(questionPreviewElement, questionState);
-}
-
 function resetQuestionGrid() {
   for (let row = 0; row < GRID_SIZE; row += 1) {
     for (let col = 0; col < GRID_SIZE; col += 1) {
       questionState[row][col] = "empty";
     }
   }
-  renderQuestionGrids();
+  answerKeyInput.value = "";
+  clearSvgPreview();
   setResultMessage("問題をリセットしました。", "");
 }
 
@@ -296,5 +284,33 @@ checkButton.addEventListener("click", compareAnswer);
 resetButton.addEventListener("click", resetGrid);
 resetQuestionButton.addEventListener("click", resetQuestionGrid);
 
-renderQuestionGrids();
 renderGrid(answerGridElement, answerState, { interactive: true });
+
+function clearSvgPreview() {
+  questionSvgPreview.innerHTML = "<p>ここに問題SVGが表示されます。</p>";
+}
+
+function renderSvgPreview(svgText) {
+  const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
+  const svgElement = parsed.querySelector("svg");
+  questionSvgPreview.innerHTML = "";
+  if (svgElement) {
+    questionSvgPreview.appendChild(svgElement);
+  } else {
+    questionSvgPreview.innerHTML = "<p>SVGの読み込みに失敗しました。</p>";
+  }
+}
+
+questionSvgInput.addEventListener("change", (event) => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    renderSvgPreview(reader.result);
+  };
+  reader.readAsText(file);
+});
+
+clearSvgPreview();

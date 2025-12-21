@@ -183,8 +183,11 @@ function syncAnswerPayload() {
   answerJsonInput.value = JSON.stringify(payload);
 }
 
-function hasAnyShape() {
-  return answerState.some((row) => row.some((cell) => cell !== "empty"));
+function getFilledCellCount() {
+  return answerState.reduce(
+    (count, row) => count + row.filter((cell) => cell !== "empty").length,
+    0
+  );
 }
 
 function setRegisterStatus(message, type = "info") {
@@ -206,8 +209,9 @@ function handleRegister() {
     setRegisterStatus("問題SVGをアップロードしてください。", "error");
     return;
   }
-  if (!hasAnyShape()) {
-    setRegisterStatus("答えの図形を入力してください。", "error");
+  const filledCellCount = getFilledCellCount();
+  if (filledCellCount === 0) {
+    setRegisterStatus("答えの図形を1つ以上入力してください。", "error");
     return;
   }
   const problems = getStoredProblems();

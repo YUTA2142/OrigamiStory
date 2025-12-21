@@ -107,6 +107,10 @@ section {
   margin-top: 16px;
 }
 
+.grid-tight {
+  gap: 0;
+}
+
 .cell {
   width: 72px;
   height: 72px;
@@ -119,6 +123,10 @@ section {
   cursor: pointer;
   position: relative;
   transition: border 0.2s ease, transform 0.2s ease;
+}
+
+.grid-tight .cell {
+  border-radius: 0;
 }
 
 .cell::before {

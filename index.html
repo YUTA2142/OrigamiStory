@@ -9,41 +9,35 @@
 <body>
   <header>
     <h1>OrigamiStory パズルアップロード</h1>
-    <p>SVGの問題をアップロードし、4×4のマスに四角・三角を入力して回答します。</p>
+    <p>SVGの問題文を表示し、4×4のマスに四角・三角を入力して回答します。</p>
   </header>
 
   <main>
     <section class="upload-panel">
-      <h2>1. 問題を入力</h2>
+      <h2>1. 問題(SVG)を入力</h2>
       <div class="upload-row">
         <label class="file-label">
-          <span>問題キー(JSON)</span>
-          <input type="file" id="question-input" accept="application/json" />
+          <span>問題SVG</span>
+          <input type="file" id="question-svg-input" accept="image/svg+xml" />
         </label>
       </div>
-      <div class="grid" id="question-grid" aria-label="4x4 question grid"></div>
+      <div class="svg-preview" id="question-svg-preview" aria-label="SVG question preview">
+        <p>ここに問題SVGが表示されます。</p>
+      </div>
       <div class="controls">
         <button type="button" id="reset-question">問題をリセット</button>
       </div>
-      <div class="helper">
-        <p>問題キーJSONは 4×4 配列で、"empty" / "square" / "triangle-ne" / "triangle-nw" / "triangle-se" / "triangle-sw" を指定してください。</p>
-        <pre class="code-sample">[
-  ["square", "triangle-ne", "empty", "empty"],
-  ["empty", "square", "triangle-se", "empty"],
-  ["triangle-sw", "empty", "square", "triangle-nw"],
-  ["empty", "empty", "triangle-se", "square"]
-]</pre>
-      </div>
-    </section>
-
-    <section class="question-panel">
-      <h2>2. 問題表示</h2>
-      <div id="question-preview" class="grid" aria-label="4x4 question preview"></div>
     </section>
 
     <section class="answer-panel">
-      <h2>3. 回答を入力</h2>
-      <div class="grid" id="answer-grid" aria-label="4x4 answer grid"></div>
+      <h2>2. 回答を入力</h2>
+      <div class="upload-row">
+        <label class="file-label">
+          <span>回答キー(JSON)</span>
+          <input type="file" id="answer-key-input" accept="application/json" />
+        </label>
+      </div>
+      <div class="grid grid-tight" id="answer-grid" aria-label="4x4 answer grid"></div>
       <div class="controls">
         <button type="button" id="check-answer">回答を確認</button>
         <button type="button" id="reset-grid">リセット</button>

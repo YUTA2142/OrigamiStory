@@ -167,7 +167,8 @@ function syncAnswerPayload() {
   answerJsonInput.value = JSON.stringify(payload);
 }
 
-
+function isAnswerComplete() {
+  return answerState.every((row) => row.every((cell) => cell !== "empty"));
 }
 
 function setRegisterStatus(message, type = "info") {
@@ -189,6 +190,8 @@ function handleRegister() {
     setRegisterStatus("問題SVGをアップロードしてください。", "error");
     return;
   }
+  if (!isAnswerComplete()) {
+    setRegisterStatus("答えは4×4すべてのマスを埋めてください。", "error");
     return;
   }
   const problems = getStoredProblems();

@@ -183,8 +183,8 @@ function syncAnswerPayload() {
   answerJsonInput.value = JSON.stringify(payload);
 }
 
-function isAnswerComplete() {
-  return answerState.every((row) => row.every((cell) => cell !== "empty"));
+function hasAnyShape() {
+  return answerState.some((row) => row.some((cell) => cell !== "empty"));
 }
 
 function setRegisterStatus(message, type = "info") {
@@ -206,8 +206,8 @@ function handleRegister() {
     setRegisterStatus("問題SVGをアップロードしてください。", "error");
     return;
   }
-  if (!isAnswerComplete()) {
-    setRegisterStatus("答えは4×4すべてのマスを埋めてください。", "error");
+  if (!hasAnyShape()) {
+    setRegisterStatus("答えの図形を入力してください。", "error");
     return;
   }
   const problems = getStoredProblems();

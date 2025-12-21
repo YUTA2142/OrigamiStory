@@ -167,8 +167,7 @@ function syncAnswerPayload() {
   answerJsonInput.value = JSON.stringify(payload);
 }
 
-function hasAnyShape(grid) {
-  return grid.some((row) => row.some((cell) => cell !== "empty"));
+
 }
 
 function setRegisterStatus(message, type = "info") {
@@ -190,8 +189,6 @@ function handleRegister() {
     setRegisterStatus("問題SVGをアップロードしてください。", "error");
     return;
   }
-  if (!hasAnyShape(answerState)) {
-    setRegisterStatus("答えのマスを1つ以上入力してください。", "error");
     return;
   }
   const problems = getStoredProblems();

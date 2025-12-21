@@ -1,6 +1,7 @@
 const questionSvgInput = document.getElementById("question-svg-input");
 const questionSvgPreview = document.getElementById("question-svg-preview");
 const answerGridElement = document.getElementById("answer-grid");
+const answerJsonInput = document.getElementById("answer-json");
 const resetButton = document.getElementById("reset-grid");
 const resetQuestionButton = document.getElementById("reset-question");
 
@@ -17,6 +18,7 @@ const STATES = [
 const answerState = Array.from({ length: GRID_SIZE }, () =>
   Array.from({ length: GRID_SIZE }, () => "empty")
 );
+let currentSvgText = "";
 
 function renderGrid(gridElement, stateGrid, options = {}) {
   const { interactive = false, onCellUpdate = null } = options;
@@ -94,17 +96,26 @@ function resetGrid() {
       answerState[row][col] = "empty";
     }
   }
-  renderGrid(answerGridElement, answerState, { interactive: true });
+  renderGrid(answerGridElement, answerState, {
+    interactive: true,
+    onCellUpdate: syncAnswerPayload
+  });
+  syncAnswerPayload();
 }
 
 function resetQuestionGrid() {
+  currentSvgText = "";
   clearSvgPreview();
+  syncAnswerPayload();
 }
 
 resetButton.addEventListener("click", resetGrid);
 resetQuestionButton.addEventListener("click", resetQuestionGrid);
 
-renderGrid(answerGridElement, answerState, { interactive: true });
+renderGrid(answerGridElement, answerState, {
+  interactive: true,
+  onCellUpdate: syncAnswerPayload
+});
 
 function clearSvgPreview() {
   questionSvgPreview.innerHTML = "<p>ここに問題SVGが表示されます。</p>";
@@ -121,6 +132,17 @@ function renderSvgPreview(svgText) {
   }
 }
 
+function syncAnswerPayload() {
+  if (!answerJsonInput) {
+    return;
+  }
+  const payload = {
+    svg: currentSvgText,
+    grid: answerState
+  };
+  answerJsonInput.value = JSON.stringify(payload);
+}
+
 questionSvgInput.addEventListener("change", (event) => {
   const file = event.target.files?.[0];
   if (!file) {
@@ -128,9 +150,12 @@ questionSvgInput.addEventListener("change", (event) => {
   }
   const reader = new FileReader();
   reader.onload = () => {
-    renderSvgPreview(reader.result);
+    currentSvgText = reader.result;
+    renderSvgPreview(currentSvgText);
+    syncAnswerPayload();
   };
   reader.readAsText(file);
 });
 
 clearSvgPreview();
+syncAnswerPayload();

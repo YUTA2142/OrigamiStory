@@ -215,19 +215,6 @@ button#reset-question:hover {
   background: #b4b6ff;
 }
 
-.result {
-  margin-top: 16px;
-  font-weight: bold;
-}
-
-.result.success {
-  color: #2e7d32;
-}
-
-.result.failure {
-  color: #c62828;
-}
-
 footer {
   color: #5a5a7a;
 }

@@ -179,6 +179,91 @@ section {
   flex-wrap: wrap;
 }
 
+.registered-meta {
+  margin: 12px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3a3a5a;
+}
+
+.registered-list {
+  display: grid;
+  gap: 16px;
+}
+
+.registered-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  background: #fcfcff;
+  display: grid;
+  gap: 12px;
+}
+
+.registered-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.registered-header h3 {
+  margin: 0;
+}
+
+.registered-date {
+  font-size: 0.85rem;
+  color: #6c6c8a;
+}
+
+.registered-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.registered-svg {
+  width: 200px;
+  min-height: 120px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  flex: 1;
+}
+
+.registered-svg svg {
+  max-width: 100%;
+  max-height: 180px;
+}
+
+.registered-grid {
+  --cell-size: 36px;
+}
+
+.registered-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.registered-empty {
+  margin-top: 8px;
+  color: #6c6c8a;
+}
+
+.delete-button {
+  background: #ff7676;
+}
+
+.delete-button:hover {
+  background: #e45555;
+}
+
 .register-status {
   margin-top: 12px;
   padding: 10px 12px;

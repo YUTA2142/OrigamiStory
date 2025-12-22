@@ -7,6 +7,9 @@ const resetQuestionButton = document.getElementById("reset-question");
 const registerButton = document.getElementById("register-problem");
 const registerStatus = document.getElementById("register-status");
 const registerOutput = document.getElementById("register-output");
+const registeredList = document.getElementById("registered-list");
+const registeredEmpty = document.getElementById("registered-empty");
+const registeredCount = document.getElementById("registered-count");
 
 const GRID_SIZE = 4;
 const STORAGE_KEY = "origamiStoryProblems";
@@ -39,6 +42,17 @@ function getStoredProblems() {
 
 function setStoredProblems(problems) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
+}
+
+function formatDate(isoString) {
+  if (!isoString) {
+    return "";
+  }
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleString("ja-JP");
 }
 
 function renderGrid(gridElement, stateGrid, options = {}) {
@@ -172,6 +186,23 @@ function renderSvgPreview(svgText) {
   }
 }
 
+function createSvgThumbnail(svgText) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "registered-svg";
+  if (!svgText) {
+    wrapper.innerHTML = "<p>SVGなし</p>";
+    return wrapper;
+  }
+  const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
+  const svgElement = parsed.querySelector("svg");
+  if (svgElement) {
+    wrapper.appendChild(svgElement);
+  } else {
+    wrapper.innerHTML = "<p>SVG読み込み失敗</p>";
+  }
+  return wrapper;
+}
+
 function syncAnswerPayload() {
   if (!answerJsonInput) {
     return;
@@ -204,6 +235,69 @@ function setRegisterStatus(message, type = "info") {
   }
 }
 
+function updateRegisteredMeta(count) {
+  if (registeredCount) {
+    registeredCount.textContent = count.toString();
+  }
+}
+
+function renderRegisteredProblems() {
+  if (!registeredList) {
+    return;
+  }
+  const problems = getStoredProblems();
+  registeredList.innerHTML = "";
+  problems.forEach((problem, index) => {
+    const item = document.createElement("article");
+    item.className = "registered-item";
+
+    const header = document.createElement("div");
+    header.className = "registered-header";
+    const title = document.createElement("h3");
+    title.textContent = `問題 ${index + 1}`;
+    const meta = document.createElement("span");
+    meta.className = "registered-date";
+    meta.textContent = formatDate(problem.createdAt);
+    header.appendChild(title);
+    header.appendChild(meta);
+
+    const content = document.createElement("div");
+    content.className = "registered-content";
+    const svgWrapper = createSvgThumbnail(problem.svg);
+    const gridWrapper = document.createElement("div");
+    gridWrapper.className = "grid registered-grid";
+    renderGrid(gridWrapper, problem.grid, { interactive: false });
+
+    content.appendChild(svgWrapper);
+    content.appendChild(gridWrapper);
+
+    const actions = document.createElement("div");
+    actions.className = "registered-actions";
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "delete-button";
+    deleteButton.textContent = "削除";
+    deleteButton.addEventListener("click", () => {
+      const updatedProblems = getStoredProblems();
+      updatedProblems.splice(index, 1);
+      setStoredProblems(updatedProblems);
+      renderRegisteredProblems();
+      setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
+    });
+    actions.appendChild(deleteButton);
+
+    item.appendChild(header);
+    item.appendChild(content);
+    item.appendChild(actions);
+    registeredList.appendChild(item);
+  });
+
+  if (registeredEmpty) {
+    registeredEmpty.style.display = problems.length === 0 ? "block" : "none";
+  }
+  updateRegisteredMeta(problems.length);
+}
+
 function handleRegister() {
   if (!currentSvgText) {
     setRegisterStatus("問題SVGをアップロードしてください。", "error");
@@ -227,6 +321,7 @@ function handleRegister() {
     registerOutput.classList.add("is-visible");
   }
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
+  renderRegisteredProblems();
 }
 
 if (questionSvgInput) {
@@ -247,4 +342,5 @@ if (questionSvgInput) {
 
 clearSvgPreview();
 syncAnswerPayload();
+renderRegisteredProblems();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);

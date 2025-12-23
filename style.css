@@ -167,6 +167,26 @@ section {
   background: #f8f8ff;
 }
 
+.cell-readonly.shape-square {
+  background: var(--accent);
+}
+
+.cell-readonly.shape-triangle-ne {
+  background: linear-gradient(225deg, var(--accent-dark) 50%, transparent 50%);
+}
+
+.cell-readonly.shape-triangle-nw {
+  background: linear-gradient(135deg, var(--accent-dark) 50%, transparent 50%);
+}
+
+.cell-readonly.shape-triangle-se {
+  background: linear-gradient(315deg, var(--accent-dark) 50%, transparent 50%);
+}
+
+.cell-readonly.shape-triangle-sw {
+  background: linear-gradient(45deg, var(--accent-dark) 50%, transparent 50%);
+}
+
 .cell-readonly:hover {
   box-shadow: none;
   transform: none;

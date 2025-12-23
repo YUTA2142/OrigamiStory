@@ -164,6 +164,9 @@ section {
 
 .cell-readonly {
   cursor: default;
+}
+
+.cell-readonly:not(.shape-square):not(.shape-triangle-ne):not(.shape-triangle-nw):not(.shape-triangle-se):not(.shape-triangle-sw) {
   background: #f8f8ff;
 }
 

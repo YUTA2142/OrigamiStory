@@ -241,11 +241,10 @@ function updateRegisteredMeta(count) {
   }
 }
 
-function renderRegisteredProblems() {
+function renderRegisteredProblems(problems = getStoredProblems()) {
   if (!registeredList) {
     return;
   }
-  const problems = getStoredProblems();
   registeredList.innerHTML = "";
   problems.forEach((problem, index) => {
     const item = document.createElement("article");
@@ -281,7 +280,7 @@ function renderRegisteredProblems() {
       const updatedProblems = getStoredProblems();
       updatedProblems.splice(index, 1);
       setStoredProblems(updatedProblems);
-      renderRegisteredProblems();
+      renderRegisteredProblems(updatedProblems);
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
     });
     actions.appendChild(deleteButton);
@@ -321,7 +320,7 @@ function handleRegister() {
     registerOutput.classList.add("is-visible");
   }
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
-  renderRegisteredProblems();
+  renderRegisteredProblems(problems);
 }
 
 if (questionSvgInput) {

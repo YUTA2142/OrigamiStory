@@ -268,7 +268,9 @@ section {
 .registered-grid {
   --cell-size: 36px;
   gap: 0;
+  border: none;
   background-image: none;
+  background-color: transparent;
 }
 
 .registered-actions {

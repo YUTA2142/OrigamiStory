@@ -193,13 +193,12 @@ function createSvgThumbnail(svgText) {
     wrapper.innerHTML = "<p>SVGなし</p>";
     return wrapper;
   }
-  const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
-  const svgElement = parsed.querySelector("svg");
-  if (svgElement) {
-    wrapper.appendChild(svgElement);
-  } else {
-    wrapper.innerHTML = "<p>SVG読み込み失敗</p>";
-  }
+  const img = document.createElement("img");
+  img.alt = "登録済みの問題SVG";
+  img.loading = "lazy";
+  img.decoding = "async";
+  img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgText)}`;
+  wrapper.appendChild(img);
   return wrapper;
 }
 

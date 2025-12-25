@@ -265,6 +265,12 @@ section {
   max-height: 180px;
 }
 
+.registered-svg img {
+  max-width: 100%;
+  max-height: 180px;
+  display: block;
+}
+
 .registered-grid {
   --cell-size: 36px;
   gap: 0;

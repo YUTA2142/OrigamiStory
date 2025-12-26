@@ -102,12 +102,14 @@ section {
 
 .grid {
   --cell-size: 72px;
-  display: grid;
+  display: inline-grid;
   grid-template-columns: repeat(4, var(--cell-size));
   grid-template-rows: repeat(4, var(--cell-size));
   gap: 8px;
   justify-content: start;
   margin-top: 16px;
+  width: max-content;
+  max-width: 100%;
   border: 1px solid var(--border);
   background-color: #fff;
   background-image:

@@ -80,6 +80,8 @@ section {
   border-radius: 8px;
   font-size: 0.85rem;
   overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .svg-preview {
@@ -241,14 +243,15 @@ section {
 }
 
 .registered-content {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
-  align-items: center;
+  align-items: start;
 }
 
 .registered-svg {
-  width: 200px;
+  width: 100%;
+  max-width: 320px;
   min-height: 120px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -257,7 +260,6 @@ section {
   align-items: center;
   justify-content: center;
   padding: 12px;
-  flex: 1;
 }
 
 .registered-svg svg {
@@ -272,7 +274,7 @@ section {
 }
 
 .registered-grid {
-  --cell-size: 36px;
+  --cell-size: clamp(28px, 6vw, 36px);
   gap: 0;
   border: none;
   background-image: none;
@@ -365,5 +367,13 @@ footer {
   .cell {
     width: var(--cell-size);
     height: var(--cell-size);
+  }
+
+  .registered-content {
+    grid-template-columns: 1fr;
+  }
+
+  .registered-svg {
+    max-width: 100%;
   }
 }

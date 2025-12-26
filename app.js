@@ -315,8 +315,8 @@ function handleRegister() {
   problems.push(payload);
   setStoredProblems(problems);
   if (registerOutput) {
-    registerOutput.textContent = JSON.stringify(payload, null, 2);
-    registerOutput.classList.add("is-visible");
+    registerOutput.textContent = "";
+    registerOutput.classList.remove("is-visible");
   }
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);

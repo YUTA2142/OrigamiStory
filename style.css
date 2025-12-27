@@ -36,21 +36,21 @@ body::after {
 
 body::before {
   background:
-    radial-gradient(circle at 10% 20%, rgba(68, 242, 255, 0.18), transparent 45%),
-    radial-gradient(circle at 80% 10%, rgba(255, 90, 217, 0.22), transparent 40%),
-    radial-gradient(circle at 70% 80%, rgba(74, 95, 255, 0.2), transparent 50%),
-    linear-gradient(180deg, #040812 0%, #0b0f28 45%, #121b3b 100%);
+    radial-gradient(circle at 10% 20%, rgba(68, 242, 255, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(255, 90, 217, 0.14), transparent 38%),
+    radial-gradient(circle at 70% 80%, rgba(74, 95, 255, 0.12), transparent 46%),
+    linear-gradient(180deg, #02040d 0%, #0b1028 45%, #141f45 100%);
 }
 
 body::after {
   background-image:
-    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.7) 50%, transparent 55%),
-    radial-gradient(1px 1px at 80px 70px, rgba(255, 255, 255, 0.5) 50%, transparent 55%),
-    radial-gradient(1px 1px at 140px 120px, rgba(255, 255, 255, 0.6) 50%, transparent 55%),
-    radial-gradient(1px 1px at 200px 40px, rgba(255, 255, 255, 0.4) 50%, transparent 55%);
-  background-size: 240px 180px;
-  opacity: 0.6;
-  animation: star-scroll 60s linear infinite;
+    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.85) 50%, transparent 55%),
+    radial-gradient(1px 1px at 80px 70px, rgba(255, 255, 255, 0.7) 50%, transparent 55%),
+    radial-gradient(1px 1px at 140px 120px, rgba(255, 255, 255, 0.8) 50%, transparent 55%),
+    radial-gradient(1px 1px at 200px 40px, rgba(255, 255, 255, 0.6) 50%, transparent 55%);
+  background-size: 220px 160px;
+  opacity: 0.75;
+  animation: star-scroll 70s linear infinite;
 }
 
 .space-planets {
@@ -64,10 +64,39 @@ body::after {
     radial-gradient(circle at 78% 22%, rgba(143, 198, 255, 0.85) 0%, rgba(143, 198, 255, 0.55) 20%, rgba(76, 114, 255, 0.15) 34%, transparent 38%),
     radial-gradient(circle at 70% 70%, rgba(255, 114, 203, 0.8) 0%, rgba(255, 114, 203, 0.5) 16%, rgba(255, 114, 203, 0.12) 32%, transparent 36%),
     radial-gradient(ellipse at 78% 22%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 22%, transparent 30%);
-  filter: blur(0.2px);
-  opacity: 0.8;
-  animation: planet-rotate 240s linear infinite;
+  opacity: 0.95;
+  animation: planet-orbit 180s linear infinite;
   transform-origin: center;
+}
+
+.space-planets::before,
+.space-planets::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  pointer-events: none;
+}
+
+.space-planets::before {
+  background-image:
+    radial-gradient(2px 2px at 40px 60px, rgba(255, 255, 255, 0.9) 50%, transparent 60%),
+    radial-gradient(1.5px 1.5px at 120px 110px, rgba(185, 214, 255, 0.7) 50%, transparent 60%),
+    radial-gradient(1.8px 1.8px at 220px 40px, rgba(255, 255, 255, 0.8) 50%, transparent 60%),
+    radial-gradient(1.2px 1.2px at 280px 160px, rgba(255, 236, 210, 0.7) 50%, transparent 60%);
+  background-size: 320px 220px;
+  opacity: 0.7;
+  animation: star-twinkle 6s ease-in-out infinite;
+}
+
+.space-planets::after {
+  background-image:
+    radial-gradient(2.5px 2.5px at 60px 80px, rgba(255, 255, 255, 0.9) 50%, transparent 60%),
+    radial-gradient(1.4px 1.4px at 180px 140px, rgba(176, 212, 255, 0.7) 50%, transparent 60%),
+    radial-gradient(2px 2px at 240px 200px, rgba(255, 214, 165, 0.8) 50%, transparent 60%);
+  background-size: 260px 200px;
+  opacity: 0.55;
+  animation: star-drift 28s ease-in-out infinite;
 }
 
 @keyframes star-scroll {
@@ -79,12 +108,35 @@ body::after {
   }
 }
 
-@keyframes planet-rotate {
-  from {
-    transform: rotate(0deg);
+@keyframes planet-orbit {
+  0% {
+    transform: rotate(0deg) translateY(0);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: rotate(180deg) translateY(-14px);
+  }
+  100% {
+    transform: rotate(360deg) translateY(0);
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes star-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(12px, -10px, 0);
   }
 }
 

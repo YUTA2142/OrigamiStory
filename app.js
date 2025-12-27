@@ -10,6 +10,15 @@ const registerOutput = document.getElementById("register-output");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
+const solveProblemSelect = document.getElementById("solve-problem-select");
+const solveSvgPreview = document.getElementById("solve-svg-preview");
+const solveGridElement = document.getElementById("solve-grid");
+const solveResetButton = document.getElementById("solve-reset-grid");
+const solveSubmitButton = document.getElementById("submit-answer");
+const solveResult = document.getElementById("solve-result");
+const solveMeta = document.getElementById("solve-meta");
+const viewButtons = document.querySelectorAll("[data-view-button]");
+const viewSections = document.querySelectorAll("section[data-view]");
 
 const GRID_SIZE = 4;
 const STORAGE_KEY = "origamiStoryProblems";
@@ -25,7 +34,12 @@ const STATES = [
 const answerState = Array.from({ length: GRID_SIZE }, () =>
   Array.from({ length: GRID_SIZE }, () => "empty")
 );
+const solveState = Array.from({ length: GRID_SIZE }, () =>
+  Array.from({ length: GRID_SIZE }, () => "empty")
+);
 let currentSvgText = "";
+let currentSolveIndex = null;
+let currentSolveProblem = null;
 
 function getStoredProblems() {
   try {
@@ -140,9 +154,25 @@ function resetGrid() {
   }
 }
 
+function resetSolveGrid() {
+  for (let row = 0; row < GRID_SIZE; row += 1) {
+    for (let col = 0; col < GRID_SIZE; col += 1) {
+      solveState[row][col] = "empty";
+    }
+  }
+  if (solveGridElement) {
+    renderGrid(solveGridElement, solveState, {
+      interactive: true,
+      onCellUpdate: () => {
+        setSolveStatus("回答を入力して提出してください。");
+      }
+    });
+  }
+}
+
 function resetQuestionGrid() {
   currentSvgText = "";
-  clearSvgPreview();
+  clearSvgPreview(questionSvgPreview, "ここに問題SVGが表示されます。");
   syncAnswerPayload();
 }
 
@@ -157,6 +187,29 @@ if (registerButton) {
     handleRegister();
   });
 }
+if (solveResetButton) {
+  solveResetButton.addEventListener("click", resetSolveGrid);
+}
+if (solveSubmitButton) {
+  solveSubmitButton.addEventListener("click", () => {
+    handleSolveSubmit();
+  });
+}
+if (solveProblemSelect) {
+  solveProblemSelect.addEventListener("change", () => {
+    loadSelectedProblem();
+  });
+}
+if (viewButtons.length) {
+  viewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetView = button.getAttribute("data-view-button");
+      if (targetView) {
+        setView(targetView);
+      }
+    });
+  });
+}
 
 if (answerGridElement) {
   renderGrid(answerGridElement, answerState, {
@@ -165,24 +218,24 @@ if (answerGridElement) {
   });
 }
 
-function clearSvgPreview() {
-  if (!questionSvgPreview) {
+function clearSvgPreview(targetElement, placeholderText) {
+  if (!targetElement) {
     return;
   }
-  questionSvgPreview.innerHTML = "<p>ここに問題SVGが表示されます。</p>";
+  targetElement.innerHTML = `<p>${placeholderText}</p>`;
 }
 
-function renderSvgPreview(svgText) {
-  if (!questionSvgPreview) {
+function renderSvgPreview(svgText, targetElement, placeholderText) {
+  if (!targetElement) {
     return;
   }
   const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
   const svgElement = parsed.querySelector("svg");
-  questionSvgPreview.innerHTML = "";
+  targetElement.innerHTML = "";
   if (svgElement) {
-    questionSvgPreview.appendChild(svgElement);
+    targetElement.appendChild(svgElement);
   } else {
-    questionSvgPreview.innerHTML = "<p>SVGの読み込みに失敗しました。</p>";
+    clearSvgPreview(targetElement, placeholderText);
   }
 }
 
@@ -234,10 +287,138 @@ function setRegisterStatus(message, type = "info") {
   }
 }
 
+function setSolveStatus(message, type = "info") {
+  if (!solveResult) {
+    return;
+  }
+  solveResult.textContent = message;
+  solveResult.classList.remove("is-error", "is-success");
+  if (type === "error") {
+    solveResult.classList.add("is-error");
+  }
+  if (type === "success") {
+    solveResult.classList.add("is-success");
+  }
+}
+
+function setSolveMeta(message) {
+  if (solveMeta) {
+    solveMeta.textContent = message;
+  }
+}
+
 function updateRegisteredMeta(count) {
   if (registeredCount) {
     registeredCount.textContent = count.toString();
   }
+}
+
+function renderSolveOptions(problems = getStoredProblems()) {
+  if (!solveProblemSelect) {
+    return;
+  }
+  solveProblemSelect.innerHTML = "";
+  if (problems.length === 0) {
+    const option = document.createElement("option");
+    option.textContent = "登録された問題がありません";
+    option.value = "";
+    option.disabled = true;
+    option.selected = true;
+    solveProblemSelect.appendChild(option);
+    solveProblemSelect.disabled = true;
+    currentSolveIndex = null;
+    currentSolveProblem = null;
+    resetSolveGrid();
+    clearSvgPreview(
+      solveSvgPreview,
+      "ここに選択した問題SVGが表示されます。"
+    );
+    setSolveMeta("登録された問題がありません。");
+    setSolveStatus("問題を登録するとここで解答できます。");
+    return;
+  }
+  solveProblemSelect.disabled = false;
+  problems.forEach((problem, index) => {
+    const option = document.createElement("option");
+    option.value = index.toString();
+    option.textContent = `問題 ${index + 1}`;
+    solveProblemSelect.appendChild(option);
+  });
+  if (currentSolveIndex !== null && currentSolveIndex < problems.length) {
+    solveProblemSelect.value = currentSolveIndex.toString();
+  } else {
+    solveProblemSelect.value = "0";
+  }
+  setSolveMeta(`登録数: ${problems.length}`);
+  loadSelectedProblem(problems);
+}
+
+function loadSelectedProblem(problems = getStoredProblems()) {
+  if (!solveProblemSelect || solveProblemSelect.disabled) {
+    return;
+  }
+  const index = Number.parseInt(solveProblemSelect.value, 10);
+  if (Number.isNaN(index) || !problems[index]) {
+    currentSolveIndex = null;
+    currentSolveProblem = null;
+    resetSolveGrid();
+    clearSvgPreview(
+      solveSvgPreview,
+      "ここに選択した問題SVGが表示されます。"
+    );
+    setSolveStatus("問題を選択してください。");
+    return;
+  }
+  currentSolveIndex = index;
+  currentSolveProblem = problems[index];
+  renderSvgPreview(
+    currentSolveProblem.svg,
+    solveSvgPreview,
+    "ここに選択した問題SVGが表示されます。"
+  );
+  resetSolveGrid();
+  setSolveStatus("回答を入力して提出してください。");
+}
+
+function isGridMatch(gridA, gridB) {
+  if (!Array.isArray(gridA) || !Array.isArray(gridB)) {
+    return false;
+  }
+  if (gridA.length !== GRID_SIZE || gridB.length !== GRID_SIZE) {
+    return false;
+  }
+  for (let row = 0; row < GRID_SIZE; row += 1) {
+    for (let col = 0; col < GRID_SIZE; col += 1) {
+      if (gridA[row][col] !== gridB[row][col]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function handleSolveSubmit() {
+  if (!currentSolveProblem) {
+    setSolveStatus("解く問題を選択してください。", "error");
+    return;
+  }
+  const isCorrect = isGridMatch(solveState, currentSolveProblem.grid);
+  if (isCorrect) {
+    setSolveStatus("正解です！素晴らしい！", "success");
+  } else {
+    setSolveStatus("不正解です。もう一度チャレンジしてください。", "error");
+  }
+}
+
+function setView(view) {
+  viewSections.forEach((section) => {
+    section.hidden = section.dataset.view !== view;
+  });
+  viewButtons.forEach((button) => {
+    const isActive = button.getAttribute("data-view-button") === view;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
 }
 
 function renderRegisteredProblems(problems = getStoredProblems()) {
@@ -280,6 +461,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       updatedProblems.splice(index, 1);
       setStoredProblems(updatedProblems);
       renderRegisteredProblems(updatedProblems);
+      renderSolveOptions(updatedProblems);
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
     });
     actions.appendChild(deleteButton);
@@ -320,6 +502,7 @@ function handleRegister() {
   }
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);
+  renderSolveOptions(problems);
 }
 
 if (questionSvgInput) {
@@ -331,14 +514,24 @@ if (questionSvgInput) {
     const reader = new FileReader();
     reader.onload = () => {
       currentSvgText = typeof reader.result === "string" ? reader.result : "";
-      renderSvgPreview(currentSvgText);
+      renderSvgPreview(
+        currentSvgText,
+        questionSvgPreview,
+        "ここに問題SVGが表示されます。"
+      );
       syncAnswerPayload();
     };
     reader.readAsText(file);
   });
 }
 
-clearSvgPreview();
+clearSvgPreview(questionSvgPreview, "ここに問題SVGが表示されます。");
+clearSvgPreview(
+  solveSvgPreview,
+  "ここに選択した問題SVGが表示されます。"
+);
 syncAnswerPayload();
 renderRegisteredProblems();
+renderSolveOptions();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
+setView("solve");

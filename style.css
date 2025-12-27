@@ -310,6 +310,12 @@ section[hidden] {
   max-height: 320px;
 }
 
+.svg-preview svg [stroke="black"],
+.svg-preview svg [stroke="#000"],
+.svg-preview svg [stroke="#000000"] {
+  stroke: rgba(255, 255, 255, 0.9);
+}
+
 .grid {
   --cell-size: 72px;
   display: inline-grid;

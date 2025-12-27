@@ -380,85 +380,48 @@ function loadSelectedProblem(problems = getStoredProblems()) {
   setSolveStatus("回答を入力して提出してください。");
 }
 
-function isGridMatch(gridA, gridB) {
-  if (!Array.isArray(gridA) || !Array.isArray(gridB)) {
-    return false;
+function getShapeType(state) {
+  if (state === "square") {
+    return "square";
   }
-  if (gridA.length !== GRID_SIZE || gridB.length !== GRID_SIZE) {
-    return false;
+  if (state.startsWith("triangle")) {
+    return "triangle";
+  }
+  return "empty";
+}
+
+function getShapeCounts(grid) {
+  const counts = {
+    square: 0,
+    triangle: 0
+  };
+  if (!Array.isArray(grid) || grid.length !== GRID_SIZE) {
+    return counts;
   }
   for (let row = 0; row < GRID_SIZE; row += 1) {
+    if (!Array.isArray(grid[row]) || grid[row].length !== GRID_SIZE) {
+      continue;
+    }
     for (let col = 0; col < GRID_SIZE; col += 1) {
-      if (gridA[row][col] !== gridB[row][col]) {
-        return false;
+      const shapeType = getShapeType(grid[row][col]);
+      if (shapeType === "square") {
+        counts.square += 1;
+      }
+      if (shapeType === "triangle") {
+        counts.triangle += 1;
       }
     }
   }
-  return true;
+  return counts;
 }
 
-function flipCellState(state, { horizontal, vertical }) {
-  if (state === "empty" || state === "square") {
-    return state;
-  }
-  let flippedState = state;
-  if (horizontal) {
-    if (flippedState === "triangle-ne") {
-      flippedState = "triangle-nw";
-    } else if (flippedState === "triangle-nw") {
-      flippedState = "triangle-ne";
-    } else if (flippedState === "triangle-se") {
-      flippedState = "triangle-sw";
-    } else if (flippedState === "triangle-sw") {
-      flippedState = "triangle-se";
-    }
-  }
-  if (vertical) {
-    if (flippedState === "triangle-ne") {
-      flippedState = "triangle-se";
-    } else if (flippedState === "triangle-se") {
-      flippedState = "triangle-ne";
-    } else if (flippedState === "triangle-nw") {
-      flippedState = "triangle-sw";
-    } else if (flippedState === "triangle-sw") {
-      flippedState = "triangle-nw";
-    }
-  }
-  return flippedState;
-}
-
-function flipGrid(grid, options) {
-  const { horizontal = false, vertical = false } = options;
-  const flipped = Array.from({ length: GRID_SIZE }, () =>
-    Array.from({ length: GRID_SIZE }, () => "empty")
+function isShapeCountMatch(answerGrid, solutionGrid) {
+  const answerCounts = getShapeCounts(answerGrid);
+  const solutionCounts = getShapeCounts(solutionGrid);
+  return (
+    answerCounts.square === solutionCounts.square &&
+    answerCounts.triangle === solutionCounts.triangle
   );
-  for (let row = 0; row < GRID_SIZE; row += 1) {
-    for (let col = 0; col < GRID_SIZE; col += 1) {
-      const targetRow = vertical ? GRID_SIZE - 1 - row : row;
-      const targetCol = horizontal ? GRID_SIZE - 1 - col : col;
-      flipped[targetRow][targetCol] = flipCellState(grid[row][col], {
-        horizontal,
-        vertical
-      });
-    }
-  }
-  return flipped;
-}
-
-function isGridMatchWithFlips(answerGrid, solutionGrid) {
-  if (isGridMatch(answerGrid, solutionGrid)) {
-    return true;
-  }
-  const horizontalFlip = flipGrid(solutionGrid, { horizontal: true });
-  if (isGridMatch(answerGrid, horizontalFlip)) {
-    return true;
-  }
-  const verticalFlip = flipGrid(solutionGrid, { vertical: true });
-  if (isGridMatch(answerGrid, verticalFlip)) {
-    return true;
-  }
-  const bothFlip = flipGrid(solutionGrid, { horizontal: true, vertical: true });
-  return isGridMatch(answerGrid, bothFlip);
 }
 
 function handleSolveSubmit() {
@@ -466,10 +429,7 @@ function handleSolveSubmit() {
     setSolveStatus("解く問題を選択してください。", "error");
     return;
   }
-  const isCorrect = isGridMatchWithFlips(
-    solveState,
-    currentSolveProblem.grid
-  );
+  const isCorrect = isShapeCountMatch(solveState, currentSolveProblem.grid);
   if (isCorrect) {
     setSolveStatus("正解です！素晴らしい！", "success");
   } else {

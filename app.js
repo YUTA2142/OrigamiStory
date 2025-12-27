@@ -10,12 +10,14 @@ const registerOutput = document.getElementById("register-output");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
+const storyInput = document.getElementById("story-input");
 const solveProblemSelect = document.getElementById("solve-problem-select");
 const solveSvgPreview = document.getElementById("solve-svg-preview");
 const solveGridElement = document.getElementById("solve-grid");
 const solveResetButton = document.getElementById("solve-reset-grid");
 const solveSubmitButton = document.getElementById("submit-answer");
 const solveResult = document.getElementById("solve-result");
+const solveStory = document.getElementById("solve-story");
 const solveMeta = document.getElementById("solve-meta");
 const viewButtons = document.querySelectorAll("[data-view-button]");
 const viewSections = document.querySelectorAll("section[data-view]");
@@ -307,6 +309,19 @@ function setSolveMeta(message) {
   }
 }
 
+function setSolveStory(message = "", visible = false) {
+  if (!solveStory) {
+    return;
+  }
+  if (!visible) {
+    solveStory.hidden = true;
+    solveStory.textContent = "";
+    return;
+  }
+  solveStory.hidden = false;
+  solveStory.textContent = message;
+}
+
 function updateRegisteredMeta(count) {
   if (registeredCount) {
     registeredCount.textContent = count.toString();
@@ -335,6 +350,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
     );
     setSolveMeta("登録された問題がありません。");
     setSolveStatus("問題を登録するとここで解答できます。");
+    setSolveStory();
     return;
   }
   solveProblemSelect.disabled = false;
@@ -367,6 +383,7 @@ function loadSelectedProblem(problems = getStoredProblems()) {
       "ここに選択した問題SVGが表示されます。"
     );
     setSolveStatus("問題を選択してください。");
+    setSolveStory();
     return;
   }
   currentSolveIndex = index;
@@ -378,6 +395,7 @@ function loadSelectedProblem(problems = getStoredProblems()) {
   );
   resetSolveGrid();
   setSolveStatus("回答を入力して提出してください。");
+  setSolveStory();
 }
 
 function getShapeType(state) {
@@ -427,13 +445,20 @@ function isShapeCountMatch(answerGrid, solutionGrid) {
 function handleSolveSubmit() {
   if (!currentSolveProblem) {
     setSolveStatus("解く問題を選択してください。", "error");
+    setSolveStory();
     return;
   }
   const isCorrect = isShapeCountMatch(solveState, currentSolveProblem.grid);
   if (isCorrect) {
     setSolveStatus("正解です！素晴らしい！", "success");
+    const storyText = currentSolveProblem.story?.trim();
+    setSolveStory(
+      storyText || "ストーリーはまだ設定されていません。",
+      true
+    );
   } else {
     setSolveStatus("不正解です。もう一度チャレンジしてください。", "error");
+    setSolveStory();
   }
 }
 
@@ -477,6 +502,13 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
     content.appendChild(svgWrapper);
     content.appendChild(gridWrapper);
 
+    if (problem.story) {
+      const story = document.createElement("p");
+      story.className = "registered-story";
+      story.textContent = problem.story;
+      content.appendChild(story);
+    }
+
     const actions = document.createElement("div");
     actions.className = "registered-actions";
     const deleteButton = document.createElement("button");
@@ -516,9 +548,11 @@ function handleRegister() {
     return;
   }
   const problems = getStoredProblems();
+  const storyText = storyInput ? storyInput.value.trim() : "";
   const payload = {
     svg: currentSvgText,
     grid: answerState.map((row) => row.slice()),
+    story: storyText,
     createdAt: new Date().toISOString()
   };
   problems.push(payload);

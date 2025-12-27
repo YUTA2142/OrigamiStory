@@ -53,12 +53,38 @@ body::after {
   animation: star-scroll 60s linear infinite;
 }
 
+.space-planets {
+  position: fixed;
+  inset: -10vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 30%, rgba(255, 214, 165, 0.9) 0%, rgba(255, 214, 165, 0.7) 18%, rgba(255, 214, 165, 0.2) 30%, transparent 32%),
+    radial-gradient(circle at 20% 32%, rgba(255, 255, 255, 0.25) 0%, transparent 55%),
+    radial-gradient(circle at 78% 22%, rgba(143, 198, 255, 0.85) 0%, rgba(143, 198, 255, 0.55) 20%, rgba(76, 114, 255, 0.15) 34%, transparent 38%),
+    radial-gradient(circle at 70% 70%, rgba(255, 114, 203, 0.8) 0%, rgba(255, 114, 203, 0.5) 16%, rgba(255, 114, 203, 0.12) 32%, transparent 36%),
+    radial-gradient(ellipse at 78% 22%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 22%, transparent 30%);
+  filter: blur(0.2px);
+  opacity: 0.8;
+  animation: planet-rotate 240s linear infinite;
+  transform-origin: center;
+}
+
 @keyframes star-scroll {
   from {
     transform: translateY(0);
   }
   to {
     transform: translateY(200px);
+  }
+}
+
+@keyframes planet-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -242,11 +268,11 @@ section[hidden] {
   margin-top: 16px;
   width: max-content;
   max-width: 100%;
-  border: 1px solid rgba(68, 242, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   background-color: rgba(6, 10, 26, 0.85);
   background-image:
-    linear-gradient(to right, rgba(68, 242, 255, 0.25) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(68, 242, 255, 0.25) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
   background-size: var(--cell-size) var(--cell-size);
   background-position: 0 0;
   box-shadow: 0 0 18px rgba(68, 242, 255, 0.2);

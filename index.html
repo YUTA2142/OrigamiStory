@@ -3,17 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrigamiStory - 問題登録</title>
+  <title>OrigamiStory - 問題を解く</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>OrigamiStory 問題登録</h1>
-    <p>SVGをアップロードし、4×4のマスで図形を登録します。</p>
+    <h1>OrigamiStory 問題を解く</h1>
+    <p>登録された問題に対して4×4の図形を入力し、答え合わせを行います。</p>
   </header>
 
   <main>
-    <section class="upload-panel">
+    <section class="mode-switch">
+      <button type="button" class="mode-button is-active" data-view-button="solve" aria-pressed="true">
+        問題を解く
+      </button>
+      <button type="button" class="mode-button" data-view-button="register" aria-pressed="false">
+        問題を登録
+      </button>
+    </section>
+
+    <section class="solve-panel" data-view="solve">
+      <h2>1. 問題を選択</h2>
+      <p>登録されている問題から解きたいものを選びます。</p>
+      <div class="controls">
+        <label class="select-label">
+          <span>問題一覧</span>
+          <select id="solve-problem-select" aria-label="問題選択"></select>
+        </label>
+      </div>
+      <p class="solve-meta" id="solve-meta" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="solve-panel" data-view="solve">
+      <h2>2. 問題の表示</h2>
+      <div class="svg-preview" id="solve-svg-preview" aria-label="選択中の問題SVG">
+        <p>ここに選択した問題SVGが表示されます。</p>
+      </div>
+    </section>
+
+    <section class="solve-panel" data-view="solve">
+      <h2>3. 図形で回答</h2>
+      <p>クリックで「空白 → 正方形 → 三角形」へ切り替えます。</p>
+      <div class="grid grid-tight" id="solve-grid" aria-label="回答用4x4図形グリッド"></div>
+      <div class="controls">
+        <button type="button" id="solve-reset-grid">図形をリセット</button>
+      </div>
+    </section>
+
+    <section class="solve-panel" data-view="solve">
+      <h2>4. 回答を提出</h2>
+      <p>入力された図形が登録された答えと一致するかを判定します。</p>
+      <div class="controls">
+        <button type="button" id="submit-answer">回答を提出する</button>
+      </div>
+      <p class="solve-status" id="solve-result" role="status" aria-live="polite">
+        問題を選択して回答を入力してください。
+      </p>
+    </section>
+
+    <section class="upload-panel" data-view="register">
       <h2>1. SVGをアップロード</h2>
       <div class="upload-row">
         <label class="file-label">
@@ -26,7 +74,7 @@
       </div>
     </section>
 
-    <section class="input-panel">
+    <section class="input-panel" data-view="register">
       <h2>2. 図形を入力 (4×4)</h2>
       <p>クリックで「空白 → 正方形 → 三角形」へ切り替えます。1つでも入力すれば登録できます。</p>
       <div class="grid grid-tight" id="answer-grid" aria-label="4x4 shape grid"></div>
@@ -36,14 +84,14 @@
       </div>
     </section>
 
-    <section class="preview-panel">
+    <section class="preview-panel" data-view="register">
       <h2>3. SVGプレビュー</h2>
       <div class="svg-preview" id="question-svg-preview" aria-label="SVG preview">
         <p>ここにアップロードしたSVGが表示されます。</p>
       </div>
     </section>
 
-    <section class="register-panel">
+    <section class="register-panel" data-view="register">
       <h2>4. 問題を登録</h2>
       <p>問題SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
       <div class="controls">
@@ -55,7 +103,7 @@
       <pre class="code-sample register-output" id="register-output" aria-label="registered payload"></pre>
     </section>
 
-    <section class="registered-panel">
+    <section class="registered-panel" data-view="register">
       <h2>5. 登録済みの問題</h2>
       <p>登録した問題を一覧で確認し、不要なものを削除できます。</p>
       <div class="registered-meta">
@@ -68,7 +116,7 @@
   </main>
 
   <footer>
-    <p>OrigamiStory - 問題登録</p>
+    <p>OrigamiStory - 問題を解く</p>
   </footer>
 
   <script src="app.js?v=20250308"></script>

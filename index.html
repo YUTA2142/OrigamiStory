@@ -62,6 +62,12 @@
       </p>
     </section>
 
+    <section class="solve-panel" data-view="solve">
+      <h2>5. ストーリー</h2>
+      <p>正解すると、この問題に紐づくストーリーが表示されます。</p>
+      <div class="solve-story" id="solve-story" role="status" aria-live="polite" hidden></div>
+    </section>
+
     <section class="upload-panel" data-view="register">
       <h2>1. SVGをアップロード</h2>
       <div class="upload-row">
@@ -85,15 +91,24 @@
       </div>
     </section>
 
+    <section class="story-panel" data-view="register">
+      <h2>3. ストーリーを入力</h2>
+      <p>問題を解いたときに表示したいストーリーを入力します。</p>
+      <label class="story-input">
+        <span>ストーリー本文</span>
+        <textarea id="story-input" rows="5" placeholder="例: 正解の先に広がる物語をここに入力します。"></textarea>
+      </label>
+    </section>
+
     <section class="preview-panel" data-view="register">
-      <h2>3. SVGプレビュー</h2>
+      <h2>4. SVGプレビュー</h2>
       <div class="svg-preview" id="question-svg-preview" aria-label="SVG preview">
         <p>ここにアップロードしたSVGが表示されます。</p>
       </div>
     </section>
 
     <section class="register-panel" data-view="register">
-      <h2>4. 問題を登録</h2>
+      <h2>5. 問題を登録</h2>
       <p>問題SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
       <div class="controls">
         <button type="button" id="register-problem">登録する</button>
@@ -105,7 +120,7 @@
     </section>
 
     <section class="registered-panel" data-view="register">
-      <h2>5. 登録済みの問題</h2>
+      <h2>6. 登録済みの問題</h2>
       <p>登録した問題を一覧で確認し、不要なものを削除できます。</p>
       <div class="registered-meta">
         <span>登録数:</span>

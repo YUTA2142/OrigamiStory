@@ -397,12 +397,79 @@ function isGridMatch(gridA, gridB) {
   return true;
 }
 
+function flipCellState(state, { horizontal, vertical }) {
+  if (state === "empty" || state === "square") {
+    return state;
+  }
+  let flippedState = state;
+  if (horizontal) {
+    if (flippedState === "triangle-ne") {
+      flippedState = "triangle-nw";
+    } else if (flippedState === "triangle-nw") {
+      flippedState = "triangle-ne";
+    } else if (flippedState === "triangle-se") {
+      flippedState = "triangle-sw";
+    } else if (flippedState === "triangle-sw") {
+      flippedState = "triangle-se";
+    }
+  }
+  if (vertical) {
+    if (flippedState === "triangle-ne") {
+      flippedState = "triangle-se";
+    } else if (flippedState === "triangle-se") {
+      flippedState = "triangle-ne";
+    } else if (flippedState === "triangle-nw") {
+      flippedState = "triangle-sw";
+    } else if (flippedState === "triangle-sw") {
+      flippedState = "triangle-nw";
+    }
+  }
+  return flippedState;
+}
+
+function flipGrid(grid, options) {
+  const { horizontal = false, vertical = false } = options;
+  const flipped = Array.from({ length: GRID_SIZE }, () =>
+    Array.from({ length: GRID_SIZE }, () => "empty")
+  );
+  for (let row = 0; row < GRID_SIZE; row += 1) {
+    for (let col = 0; col < GRID_SIZE; col += 1) {
+      const targetRow = vertical ? GRID_SIZE - 1 - row : row;
+      const targetCol = horizontal ? GRID_SIZE - 1 - col : col;
+      flipped[targetRow][targetCol] = flipCellState(grid[row][col], {
+        horizontal,
+        vertical
+      });
+    }
+  }
+  return flipped;
+}
+
+function isGridMatchWithFlips(answerGrid, solutionGrid) {
+  if (isGridMatch(answerGrid, solutionGrid)) {
+    return true;
+  }
+  const horizontalFlip = flipGrid(solutionGrid, { horizontal: true });
+  if (isGridMatch(answerGrid, horizontalFlip)) {
+    return true;
+  }
+  const verticalFlip = flipGrid(solutionGrid, { vertical: true });
+  if (isGridMatch(answerGrid, verticalFlip)) {
+    return true;
+  }
+  const bothFlip = flipGrid(solutionGrid, { horizontal: true, vertical: true });
+  return isGridMatch(answerGrid, bothFlip);
+}
+
 function handleSolveSubmit() {
   if (!currentSolveProblem) {
     setSolveStatus("解く問題を選択してください。", "error");
     return;
   }
-  const isCorrect = isGridMatch(solveState, currentSolveProblem.grid);
+  const isCorrect = isGridMatchWithFlips(
+    solveState,
+    currentSolveProblem.grid
+  );
   if (isCorrect) {
     setSolveStatus("正解です！素晴らしい！", "success");
   } else {

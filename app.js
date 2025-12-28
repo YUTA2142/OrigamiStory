@@ -483,7 +483,6 @@ function setView(view) {
   if (view !== "story") {
     setSolveStory();
   }
-
 }
 
 function renderRegisteredProblems(problems = getStoredProblems()) {

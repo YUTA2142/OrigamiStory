@@ -306,43 +306,6 @@ section {
   background: rgba(7, 10, 26, 0.92);
   border-color: rgba(120, 150, 255, 0.35);
   box-shadow: 0 0 30px rgba(20, 32, 64, 0.6);
-  position: relative;
-  overflow: hidden;
-}
-
-.story-burst {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background-image:
-    radial-gradient(2px 2px at 20% 35%, rgba(255, 255, 255, 0.9) 40%, transparent 55%),
-    radial-gradient(3px 3px at 35% 55%, rgba(174, 214, 255, 0.9) 35%, transparent 60%),
-    radial-gradient(2px 2px at 50% 40%, rgba(255, 224, 200, 0.85) 40%, transparent 60%),
-    radial-gradient(2px 2px at 62% 50%, rgba(190, 210, 255, 0.9) 40%, transparent 60%),
-    radial-gradient(3px 3px at 78% 36%, rgba(255, 255, 255, 0.95) 35%, transparent 60%),
-    radial-gradient(2px 2px at 70% 62%, rgba(255, 200, 240, 0.85) 40%, transparent 60%),
-    radial-gradient(2px 2px at 42% 70%, rgba(210, 228, 255, 0.9) 35%, transparent 60%),
-    radial-gradient(3px 3px at 58% 75%, rgba(255, 255, 255, 0.9) 35%, transparent 60%);
-  transform: scale(0.6);
-  filter: drop-shadow(0 0 12px rgba(120, 160, 255, 0.6));
-}
-
-.story-burst.is-active {
-  animation: story-burst 1.4s ease-out;
-}
-
-.story-burst::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(120, 170, 255, 0.3), transparent 60%);
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-.story-burst.is-active::after {
-  animation: story-burst-glow 1.4s ease-out;
 }
 
 .story-content {

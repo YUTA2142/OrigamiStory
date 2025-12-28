@@ -483,18 +483,6 @@ function setView(view) {
   if (view !== "story") {
     setSolveStory();
   }
-  if (view === "story") {
-    const storySection = document.querySelector('[data-view="story"]');
-    if (storySection) {
-      storySection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-    const storyBurst = document.querySelector(".story-burst");
-    if (storyBurst) {
-      storyBurst.classList.remove("is-active");
-      void storyBurst.offsetWidth;
-      storyBurst.classList.add("is-active");
-    }
-  }
 }
 
 function renderRegisteredProblems(problems = getStoredProblems()) {

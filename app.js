@@ -19,6 +19,7 @@ const solveSubmitButton = document.getElementById("submit-answer");
 const solveResult = document.getElementById("solve-result");
 const solveStory = document.getElementById("solve-story");
 const solveMeta = document.getElementById("solve-meta");
+const storyBackButton = document.getElementById("story-back");
 const viewButtons = document.querySelectorAll("[data-view-button]");
 const viewSections = document.querySelectorAll("section[data-view]");
 
@@ -200,6 +201,11 @@ if (solveSubmitButton) {
 if (solveProblemSelect) {
   solveProblemSelect.addEventListener("change", () => {
     loadSelectedProblem();
+  });
+}
+if (storyBackButton) {
+  storyBackButton.addEventListener("click", () => {
+    setView("solve");
   });
 }
 if (viewButtons.length) {
@@ -456,6 +462,7 @@ function handleSolveSubmit() {
       storyText || "ストーリーはまだ設定されていません。",
       true
     );
+    setView("story");
   } else {
     setSolveStatus("不正解です。もう一度チャレンジしてください。", "error");
     setSolveStory();
@@ -464,13 +471,18 @@ function handleSolveSubmit() {
 
 function setView(view) {
   viewSections.forEach((section) => {
-    section.hidden = section.dataset.view !== view;
+    const views = (section.dataset.view || "").split(" ").filter(Boolean);
+    section.hidden = views.length > 0 ? !views.includes(view) : false;
   });
   viewButtons.forEach((button) => {
     const isActive = button.getAttribute("data-view-button") === view;
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", isActive ? "true" : "false");
   });
+  document.body.classList.toggle("is-story-view", view === "story");
+  if (view !== "story") {
+    setSolveStory();
+  }
 }
 
 function renderRegisteredProblems(problems = getStoredProblems()) {

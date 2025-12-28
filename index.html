@@ -14,7 +14,7 @@
   </header>
 
   <main>
-    <section class="mode-switch">
+    <section class="mode-switch" data-view="solve register">
       <button type="button" class="mode-button is-active" data-view-button="solve" aria-pressed="true">
         問題を解く
       </button>
@@ -62,10 +62,16 @@
       </p>
     </section>
 
-    <section class="solve-panel" data-view="solve">
-      <h2>5. ストーリー</h2>
-      <p>正解すると、この問題に紐づくストーリーが表示されます。</p>
-      <div class="solve-story" id="solve-story" role="status" aria-live="polite" hidden></div>
+    <section class="story-view" data-view="story">
+      <div class="story-burst" aria-hidden="true"></div>
+      <div class="story-content">
+        <h2>ストーリー</h2>
+        <p class="story-lead">正解したときだけ、物語が宇宙の中央に現れます。</p>
+        <div class="solve-story story-display" id="solve-story" role="status" aria-live="polite" hidden></div>
+        <div class="controls">
+          <button type="button" id="story-back">問題に戻る</button>
+        </div>
+      </div>
     </section>
 
     <section class="upload-panel" data-view="register">

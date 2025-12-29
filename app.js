@@ -476,7 +476,7 @@ function handleSolveSubmit() {
     setSolveStatus("正解です！素晴らしい！", "success");
     const storyText = currentSolveProblem.story?.trim();
     setSolveStory(
-      storyText || "ストーリーはまだ設定されていません。",
+      storyText || "宇宙の記憶はまだ設定されていません。",
       true
     );
     triggerStoryReveal();

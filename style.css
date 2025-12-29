@@ -178,6 +178,115 @@ body.is-story-view .space-planets {
   }
 }
 
+.story-reveal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 3;
+}
+
+.story-reveal::before,
+.story-reveal::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 2px solid rgba(68, 242, 255, 0.6);
+  box-shadow:
+    0 0 35px rgba(68, 242, 255, 0.35),
+    inset 0 0 24px rgba(255, 90, 217, 0.35);
+  opacity: 0;
+}
+
+.story-reveal::after {
+  inset: 22%;
+  border-color: rgba(255, 90, 217, 0.5);
+  box-shadow:
+    0 0 30px rgba(255, 90, 217, 0.35),
+    inset 0 0 20px rgba(68, 242, 255, 0.3);
+}
+
+.story-reveal span {
+  position: relative;
+  padding: 18px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(10, 22, 55, 0.92), rgba(5, 12, 34, 0.95));
+  border: 1px solid rgba(68, 242, 255, 0.5);
+  color: #e6fbff;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 28px rgba(68, 242, 255, 0.35);
+  opacity: 0;
+  transform: translateY(10px) scale(0.9);
+}
+
+body.is-story-transition .story-reveal {
+  animation: story-reveal-fade 2.2s ease-out forwards;
+}
+
+body.is-story-transition .story-reveal::before {
+  animation: story-reveal-ring 2.2s ease-out forwards;
+}
+
+body.is-story-transition .story-reveal::after {
+  animation: story-reveal-ring 2.2s ease-out 0.15s forwards;
+}
+
+body.is-story-transition .story-reveal span {
+  animation: story-reveal-text 2.2s ease-out forwards;
+}
+
+@keyframes story-reveal-fade {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes story-reveal-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes story-reveal-text {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
 header,
 footer {
   text-align: center;

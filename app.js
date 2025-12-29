@@ -20,6 +20,7 @@ const solveResult = document.getElementById("solve-result");
 const solveStory = document.getElementById("solve-story");
 const solveMeta = document.getElementById("solve-meta");
 const storyBackButton = document.getElementById("story-back");
+const storyReveal = document.querySelector(".story-reveal");
 const viewButtons = document.querySelectorAll("[data-view-button]");
 const viewSections = document.querySelectorAll("section[data-view]");
 
@@ -43,6 +44,7 @@ const solveState = Array.from({ length: GRID_SIZE }, () =>
 let currentSvgText = "";
 let currentSolveIndex = null;
 let currentSolveProblem = null;
+let storyRevealTimeoutId = null;
 
 function getStoredProblems() {
   try {
@@ -328,6 +330,21 @@ function setSolveStory(message = "", visible = false) {
   solveStory.textContent = message;
 }
 
+function triggerStoryReveal() {
+  if (!storyReveal) {
+    return;
+  }
+  document.body.classList.remove("is-story-transition");
+  void document.body.offsetWidth;
+  document.body.classList.add("is-story-transition");
+  if (storyRevealTimeoutId) {
+    window.clearTimeout(storyRevealTimeoutId);
+  }
+  storyRevealTimeoutId = window.setTimeout(() => {
+    document.body.classList.remove("is-story-transition");
+  }, 2200);
+}
+
 function updateRegisteredMeta(count) {
   if (registeredCount) {
     registeredCount.textContent = count.toString();
@@ -462,6 +479,7 @@ function handleSolveSubmit() {
       storyText || "ストーリーはまだ設定されていません。",
       true
     );
+    triggerStoryReveal();
     setView("story");
   } else {
     setSolveStatus("不正解です。もう一度チャレンジしてください。", "error");

@@ -19,6 +19,7 @@ const solveSubmitButton = document.getElementById("submit-answer");
 const solveResult = document.getElementById("solve-result");
 const solveStory = document.getElementById("solve-story");
 const solveMeta = document.getElementById("solve-meta");
+const storyTitle = document.getElementById("story-title");
 const storyBackButton = document.getElementById("story-back");
 const storyReveal = document.querySelector(".story-reveal");
 const viewButtons = document.querySelectorAll("[data-view-button]");
@@ -317,6 +318,17 @@ function setSolveMeta(message) {
   }
 }
 
+function setStoryTitle(index = null) {
+  if (!storyTitle) {
+    return;
+  }
+  if (index === null) {
+    storyTitle.textContent = "宇宙の記憶";
+    return;
+  }
+  storyTitle.textContent = `宇宙の記憶 No.${index}`;
+}
+
 function setSolveStory(message = "", visible = false) {
   if (!solveStory) {
     return;
@@ -475,6 +487,7 @@ function handleSolveSubmit() {
   if (isCorrect) {
     setSolveStatus("正解です！素晴らしい！", "success");
     const storyText = currentSolveProblem.story?.trim();
+    setStoryTitle(currentSolveIndex + 1);
     setSolveStory(
       storyText || "宇宙の記憶はまだ設定されていません。",
       true
@@ -500,6 +513,7 @@ function setView(view) {
   document.body.classList.toggle("is-story-view", view === "story");
   if (view !== "story") {
     setSolveStory();
+    setStoryTitle();
   }
 }
 

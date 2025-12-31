@@ -585,6 +585,40 @@ section[hidden] {
   border: 1px solid rgba(68, 242, 255, 0.4);
 }
 
+.register-json {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(68, 242, 255, 0.4);
+  background: rgba(10, 16, 42, 0.7);
+}
+
+.register-json-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.register-json-title {
+  margin: 0;
+  color: var(--muted);
+}
+
+.copy-status {
+  min-height: 1.2em;
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.copy-status.is-success {
+  color: #d8fff8;
+}
+
+.copy-status.is-error {
+  color: #ffd4f3;
+}
+
 .code-sample {
   margin: 8px 0 0;
   padding: 12px;
@@ -861,11 +895,12 @@ section[hidden] {
 
 .register-output {
   margin-top: 12px;
-  display: none;
+  display: block;
+  color: var(--muted);
 }
 
-.register-output.is-visible {
-  display: block;
+.register-output.is-filled {
+  color: var(--text);
 }
 
 button:not(.cell) {

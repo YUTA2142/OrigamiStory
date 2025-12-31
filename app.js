@@ -7,6 +7,8 @@ const resetQuestionButton = document.getElementById("reset-question");
 const registerButton = document.getElementById("register-problem");
 const registerStatus = document.getElementById("register-status");
 const registerOutput = document.getElementById("register-output");
+const registerCopyButton = document.getElementById("register-copy");
+const registerCopyStatus = document.getElementById("register-copy-status");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
@@ -236,8 +238,6 @@ if (adminPasswordInput) {
     }
   });
 }
-  });
-}
 if (viewButtons.length) {
   viewButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -306,6 +306,7 @@ function syncAnswerPayload() {
     grid: answerState
   };
   answerJsonInput.value = JSON.stringify(payload);
+  updateRegisterPreview();
 }
 
 function getFilledCellCount() {
@@ -329,13 +330,75 @@ function setRegisterStatus(message, type = "info") {
   }
 }
 
-function updateProblemsExport() {
+function setCopyStatus(message, type = "info") {
+  if (!registerCopyStatus) {
+    return;
+  }
+  registerCopyStatus.textContent = message;
+  registerCopyStatus.classList.remove("is-error", "is-success");
+  if (type === "error") {
+    registerCopyStatus.classList.add("is-error");
+  }
+  if (type === "success") {
+    registerCopyStatus.classList.add("is-success");
+  }
+}
+
+function getDraftPayload() {
+  return {
+    svg: currentSvgText,
+    grid: answerState.map((row) => row.slice()),
+    story: storyInput ? storyInput.value.trim() : ""
+  };
+}
+
+function isDraftReady() {
+  const storyText = storyInput ? storyInput.value.trim() : "";
+  return Boolean(currentSvgText) && getFilledCellCount() > 0 && storyText.length > 0;
+}
+
+function updateRegisterPreview() {
   if (!registerOutput) {
     return;
   }
-  const payload = JSON.stringify(getStoredProblems(), null, 2);
+  if (!isDraftReady()) {
+    registerOutput.textContent =
+      "SVGと図形と宇宙の記憶を入力するとJSONが表示されます。";
+    registerOutput.classList.remove("is-filled");
+    if (registerCopyButton) {
+      registerCopyButton.disabled = true;
+    }
+    setCopyStatus("");
+    return;
+  }
+  const payload = JSON.stringify(getDraftPayload(), null, 2);
   registerOutput.textContent = payload;
-  registerOutput.classList.toggle("is-visible", payload.length > 0);
+  registerOutput.classList.add("is-filled");
+  if (registerCopyButton) {
+    registerCopyButton.disabled = false;
+  }
+}
+
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    const temp = document.createElement("textarea");
+    temp.value = text;
+    temp.setAttribute("readonly", "");
+    temp.style.position = "absolute";
+    temp.style.left = "-9999px";
+    document.body.appendChild(temp);
+    temp.select();
+    const success = document.execCommand("copy");
+    document.body.removeChild(temp);
+    if (success) {
+      resolve();
+    } else {
+      reject();
+    }
+  });
 }
 
 function setSolveStatus(message, type = "info") {
@@ -655,7 +718,6 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       renderRegisteredProblems(updatedProblems);
       renderSolveOptions(getStoredProblems());
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
-      updateProblemsExport();
     });
     actions.appendChild(deleteButton);
 
@@ -719,12 +781,38 @@ if (questionSvgInput) {
   });
 }
 
+if (storyInput) {
+  storyInput.addEventListener("input", () => {
+    updateRegisterPreview();
+  });
+}
+
+if (registerCopyButton) {
+  registerCopyButton.addEventListener("click", () => {
+    if (!registerOutput || registerCopyButton.disabled) {
+      return;
+    }
+    const text = registerOutput.textContent;
+    if (!text) {
+      return;
+    }
+    copyTextToClipboard(text)
+      .then(() => {
+        setCopyStatus("JSONをコピーしました。", "success");
+      })
+      .catch(() => {
+        setCopyStatus("コピーに失敗しました。", "error");
+      });
+  });
+}
+
 clearSvgPreview(questionSvgPreview, "ここに問題SVGが表示されます。");
 clearSvgPreview(
   solveSvgPreview,
   "ここに選択した問題SVGが表示されます。"
 );
 syncAnswerPayload();
+updateRegisterPreview();
 renderRegisteredProblems();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
 setSolveMeta("登録された問題を読み込み中...");

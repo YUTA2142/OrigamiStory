@@ -16,7 +16,7 @@
       <span>OrigamiStory</span>
       <span>宇宙の謎を解く</span>
     </h1>
-    <p>登録された問題に対して4×4の図形を入力し、答え合わせを行います。</p>
+    <p>登録された宇宙の謎に対して4×4の図形を入力し、答え合わせを行います。</p>
   </header>
 
   <main>
@@ -32,7 +32,7 @@
     <div class="admin-gate" id="admin-gate" hidden>
       <div class="admin-gate-card" role="dialog" aria-modal="true" aria-labelledby="admin-gate-title">
         <h2 id="admin-gate-title">管理者の入口</h2>
-        <p>問題の登録画面を開くには管理者パスワードが必要です。</p>
+        <p>宇宙の謎の登録画面を開くには管理者パスワードが必要です。</p>
         <label class="admin-gate-input">
           <span>パスワード</span>
           <input type="password" id="admin-password-input" placeholder="管理者パスワードを入力" />
@@ -46,27 +46,27 @@
     </div>
 
     <section class="solve-panel" data-view="solve">
-      <h2>1. 問題を選択</h2>
-      <p>登録されている問題から解きたいものを選びます。</p>
+      <h2>1. 宇宙の謎を選択</h2>
+      <p>登録されている宇宙の謎から解きたいものを選びます。</p>
       <div class="controls">
         <label class="select-label">
-          <span>問題一覧</span>
-          <select id="solve-problem-select" aria-label="問題選択"></select>
+          <span>宇宙の謎一覧</span>
+          <select id="solve-problem-select" aria-label="宇宙の謎選択"></select>
         </label>
       </div>
       <p class="solve-meta" id="solve-meta" role="status" aria-live="polite"></p>
     </section>
 
     <section class="solve-panel" data-view="solve">
-      <h2>2. 問題の表示</h2>
+      <h2>2. 宇宙の謎の表示</h2>
       <p>
         下の画像は折り紙の展開図です。<br>
         赤線→山折り(Mountain)<br>
         青線→谷折り(Valley)<br>
         折った後にできる形を下のパネルに入力して下さい。
       </p>
-      <div class="svg-preview" id="solve-svg-preview" aria-label="選択中の問題SVG">
-        <p>ここに選択した問題SVGが表示されます。</p>
+      <div class="svg-preview" id="solve-svg-preview" aria-label="選択中の宇宙の謎SVG">
+        <p>ここに選択した宇宙の謎SVGが表示されます。</p>
       </div>
     </section>
 
@@ -86,7 +86,7 @@
         <button type="button" id="submit-answer">回答を提出する</button>
       </div>
       <p class="solve-status" id="solve-result" role="status" aria-live="polite">
-        問題を選択して回答を入力してください。
+        宇宙の謎を選択して回答を入力してください。
       </p>
     </section>
 
@@ -96,7 +96,7 @@
         <p class="story-lead">正解したときだけ、物語が宇宙の中央に現れます。</p>
         <div class="solve-story story-display" id="solve-story" role="status" aria-live="polite" hidden></div>
         <div class="controls">
-          <button type="button" id="story-back">問題に戻る</button>
+          <button type="button" id="story-back">宇宙の謎に戻る</button>
         </div>
       </div>
     </section>
@@ -105,7 +105,7 @@
       <h2>1. SVGをアップロード</h2>
       <div class="upload-row">
         <label class="file-label">
-          <span>問題SVG</span>
+          <span>宇宙の謎SVG</span>
           <input type="file" id="question-svg-input" accept="image/svg+xml" />
         </label>
       </div>
@@ -141,8 +141,8 @@
     </section>
 
     <section class="register-panel" data-view="register">
-      <h2>5. 問題を登録</h2>
-      <p>問題SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
+      <h2>5. 宇宙の謎を登録</h2>
+      <p>宇宙の謎SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
       <div class="controls">
         <button type="button" id="register-problem">登録する</button>
       </div>
@@ -164,14 +164,14 @@ SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
     </section>
 
     <section class="registered-panel" data-view="register">
-      <h2>6. 登録済みの問題</h2>
-      <p>登録した問題を一覧で確認し、不要なものを削除できます。</p>
+      <h2>6. 登録済みの宇宙の謎</h2>
+      <p>登録した宇宙の謎を一覧で確認し、不要なものを削除できます。</p>
       <div class="registered-meta">
         <span>登録数:</span>
         <strong id="registered-count">0</strong>
       </div>
       <div class="registered-list" id="registered-list" aria-live="polite"></div>
-      <p class="registered-empty" id="registered-empty">登録済みの問題はまだありません。</p>
+      <p class="registered-empty" id="registered-empty">登録済みの宇宙の謎はまだありません。</p>
     </section>
   </main>
 

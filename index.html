@@ -149,9 +149,18 @@
       <p class="register-status" id="register-status" role="status" aria-live="polite">
         まだ登録されていません。
       </p>
-      <p class="helper">
+      <div class="register-json">
+        <div class="register-json-header">
+          <p class="register-json-title">JSONプレビュー</p>
+          <button type="button" class="ghost-button" id="register-copy" disabled>
+            コピー
+          </button>
+        </div>
+        <pre class="code-sample register-output" id="register-output" aria-label="入力内容のJSON">
+SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
+        </pre>
+        <p class="copy-status" id="register-copy-status" role="status" aria-live="polite"></p>
       </div>
-      <pre class="code-sample register-output" id="register-output" aria-label="problems json output"></pre>
     </section>
 
     <section class="registered-panel" data-view="register">

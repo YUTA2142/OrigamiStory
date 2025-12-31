@@ -25,9 +25,25 @@
         宇宙の謎を解く
       </button>
       <button type="button" class="mode-button" data-view-button="register" aria-pressed="false">
-        問題を登録
+        管理者入口
       </button>
     </section>
+
+    <div class="admin-gate" id="admin-gate" hidden>
+      <div class="admin-gate-card" role="dialog" aria-modal="true" aria-labelledby="admin-gate-title">
+        <h2 id="admin-gate-title">管理者の入口</h2>
+        <p>問題の登録画面を開くには管理者パスワードが必要です。</p>
+        <label class="admin-gate-input">
+          <span>パスワード</span>
+          <input type="password" id="admin-password-input" placeholder="管理者パスワードを入力" />
+        </label>
+        <p class="admin-gate-status" id="admin-gate-status" role="status" aria-live="polite"></p>
+        <div class="controls">
+          <button type="button" id="admin-password-submit">開く</button>
+          <button type="button" class="ghost-button" id="admin-password-cancel">キャンセル</button>
+        </div>
+      </div>
+    </div>
 
     <section class="solve-panel" data-view="solve">
       <h2>1. 問題を選択</h2>

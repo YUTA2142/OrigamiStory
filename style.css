@@ -559,6 +559,22 @@ section[hidden] {
   width: 100%;
 }
 
+.check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(68, 242, 255, 0.35);
+  background: rgba(8, 14, 38, 0.6);
+  color: var(--text);
+}
+
+.check-label input {
+  width: 16px;
+  height: 16px;
+}
+
 .story-input {
   display: flex;
   flex-direction: column;

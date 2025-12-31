@@ -10,6 +10,9 @@ const registerOutput = document.getElementById("register-output");
 const downloadProblemsButton = document.getElementById("download-problems");
 const importProblemsInput = document.getElementById("import-problems");
 const copyProblemsButton = document.getElementById("copy-problems");
+const autoDownloadProblemsCheckbox = document.getElementById(
+  "auto-download-problems"
+);
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
@@ -791,10 +794,18 @@ function handleRegister() {
     registerOutput.textContent = "";
     registerOutput.classList.remove("is-visible");
   }
-  setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);
   renderSolveOptions(getAllProblems());
   updateProblemsExport();
+  if (autoDownloadProblemsCheckbox?.checked) {
+    downloadProblemsJson();
+    setRegisterStatus(
+      `登録しました。現在の登録数: ${problems.length} (problems.json をダウンロードしました)`,
+      "success"
+    );
+  } else {
+    setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
+  }
 }
 
 if (questionSvgInput) {

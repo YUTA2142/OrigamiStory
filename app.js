@@ -73,6 +73,37 @@ function setStoredProblems(problems) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
 }
 
+async function fetchJsonProblems() {
+  try {
+    const response = await fetch("problems.json", { cache: "no-store" });
+    if (!response.ok) {
+      return [];
+    }
+    const data = await response.json();
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (data && typeof data === "object" && data.svg && data.grid) {
+      return [data];
+    }
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
+async function hydrateProblemsFromJson() {
+  const stored = getStoredProblems();
+  if (stored.length > 0) {
+    return stored;
+  }
+  const fetched = await fetchJsonProblems();
+  if (fetched.length > 0) {
+    setStoredProblems(fetched);
+  }
+  return getStoredProblems();
+}
+
 function formatDate(isoString) {
   if (!isoString) {
     return "";
@@ -813,8 +844,14 @@ clearSvgPreview(
 );
 syncAnswerPayload();
 updateRegisterPreview();
-renderRegisteredProblems();
-setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
-setSolveMeta("登録された問題を読み込み中...");
-setView("solve");
-renderSolveOptions(getStoredProblems());
+
+async function init() {
+  const problems = await hydrateProblemsFromJson();
+  renderRegisteredProblems(problems);
+  setRegisterStatus(`現在の登録数: ${problems.length}`);
+  setSolveMeta("登録された問題を読み込み中...");
+  setView("solve");
+  renderSolveOptions(problems);
+}
+
+init();

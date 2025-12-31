@@ -8,7 +8,6 @@ const registerButton = document.getElementById("register-problem");
 const registerStatus = document.getElementById("register-status");
 const registerOutput = document.getElementById("register-output");
 const downloadProblemsButton = document.getElementById("download-problems");
-const importProblemsInput = document.getElementById("import-problems");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
@@ -248,27 +247,6 @@ if (downloadProblemsButton) {
   downloadProblemsButton.addEventListener("click", () => {
     updateProblemsExport();
     downloadProblemsJson();
-    setRegisterStatus("problems.json をダウンロードしました。", "success");
-  });
-}
-if (importProblemsInput) {
-  importProblemsInput.addEventListener("change", (event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const text = typeof reader.result === "string" ? reader.result : "";
-        const parsed = JSON.parse(text);
-        applyImportedProblems(parsed);
-      } catch (error) {
-        setRegisterStatus("problems.json の読み込みに失敗しました。", "error");
-      }
-    };
-    reader.readAsText(file);
-    event.target.value = "";
   });
 }
 if (viewButtons.length) {
@@ -383,22 +361,6 @@ function downloadProblemsJson() {
   anchor.remove();
   URL.revokeObjectURL(url);
 }
-
-function applyImportedProblems(problems) {
-  if (!Array.isArray(problems)) {
-    setRegisterStatus("problems.json の形式が正しくありません。", "error");
-    return;
-  }
-  setStoredProblems(problems);
-  renderRegisteredProblems(problems);
-  renderSolveOptions(getAllProblems());
-  updateProblemsExport();
-  setRegisterStatus(
-    `problems.json を読み込みました。登録数: ${problems.length}`,
-    "success"
-  );
-}
-
 function setSolveStatus(message, type = "info") {
   if (!solveResult) {
     return;
@@ -759,7 +721,6 @@ function handleRegister() {
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);
   renderSolveOptions(getAllProblems());
-  updateProblemsExport();
 }
 
 if (questionSvgInput) {
@@ -792,7 +753,6 @@ renderRegisteredProblems();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
 setSolveMeta("problems.json を読み込み中...");
 setView("solve");
-updateProblemsExport();
 
 async function initializeProblems() {
   try {
@@ -807,7 +767,6 @@ async function initializeProblems() {
     setSolveMeta("problems.json を読み込めませんでした。");
   }
   renderSolveOptions(getAllProblems());
-  updateProblemsExport();
 }
 
 initializeProblems();

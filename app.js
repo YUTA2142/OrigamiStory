@@ -32,6 +32,7 @@ const adminGateStatus = document.getElementById("admin-gate-status");
 
 const GRID_SIZE = 4;
 const STORAGE_KEY = "origamiStoryProblems";
+const PROBLEMS_JSON_URL = "./problems.json";
 const ADMIN_PASSWORD = "origami-admin";
 const STATES = [
   "empty",
@@ -53,6 +54,7 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
+let initialProblems = [];
 
 function getStoredProblems() {
   try {
@@ -65,6 +67,10 @@ function getStoredProblems() {
   } catch (error) {
     return [];
   }
+}
+
+function getAllProblems() {
+  return [...initialProblems, ...getStoredProblems()];
 }
 
 function setStoredProblems(problems) {
@@ -441,7 +447,7 @@ function updateRegisteredMeta(count) {
   }
 }
 
-function renderSolveOptions(problems = getStoredProblems()) {
+function renderSolveOptions(problems = getAllProblems()) {
   if (!solveProblemSelect) {
     return;
   }
@@ -482,7 +488,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
   loadSelectedProblem(problems);
 }
 
-function loadSelectedProblem(problems = getStoredProblems()) {
+function loadSelectedProblem(problems = getAllProblems()) {
   if (!solveProblemSelect || solveProblemSelect.disabled) {
     return;
   }
@@ -642,7 +648,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       updatedProblems.splice(index, 1);
       setStoredProblems(updatedProblems);
       renderRegisteredProblems(updatedProblems);
-      renderSolveOptions(updatedProblems);
+      renderSolveOptions(getAllProblems());
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
     });
     actions.appendChild(deleteButton);
@@ -685,7 +691,7 @@ function handleRegister() {
   }
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);
-  renderSolveOptions(problems);
+  renderSolveOptions(getAllProblems());
 }
 
 if (questionSvgInput) {
@@ -715,6 +721,23 @@ clearSvgPreview(
 );
 syncAnswerPayload();
 renderRegisteredProblems();
-renderSolveOptions();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
+setSolveMeta("problems.json を読み込み中...");
 setView("solve");
+
+async function initializeProblems() {
+  try {
+    const response = await fetch(PROBLEMS_JSON_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    initialProblems = Array.isArray(data) ? data : [];
+  } catch (error) {
+    initialProblems = [];
+    setSolveMeta("problems.json を読み込めませんでした。");
+  }
+  renderSolveOptions(getAllProblems());
+}
+
+initializeProblems();

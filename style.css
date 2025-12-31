@@ -228,6 +228,17 @@ body.is-story-transition .story-reveal {
   animation: story-reveal-fade 2.2s ease-out forwards;
 }
 
+body.is-story-transition::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  background: rgba(5, 12, 34, 0.35);
+  animation: story-reveal-dim 2.2s ease-out forwards;
+}
+
 body.is-story-transition .story-reveal::before {
   animation: story-reveal-ring 2.2s ease-out forwards;
 }
@@ -241,6 +252,21 @@ body.is-story-transition .story-reveal span {
 }
 
 @keyframes story-reveal-fade {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes story-reveal-dim {
   0% {
     opacity: 0;
   }

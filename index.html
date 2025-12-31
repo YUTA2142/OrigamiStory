@@ -149,7 +149,17 @@
       <p class="register-status" id="register-status" role="status" aria-live="polite">
         まだ登録されていません。
       </p>
-      <pre class="code-sample register-output" id="register-output" aria-label="registered payload"></pre>
+      <p class="helper">
+        別のブラウザや端末で使うには、ダウンロードした problems.json を読み込むか、公開サイトに上書き配置してください。
+      </p>
+      <div class="controls">
+        <button type="button" id="download-problems">problems.json をダウンロード</button>
+        <label class="file-label">
+          <span>problems.json を読み込む</span>
+          <input type="file" id="import-problems" accept="application/json" />
+        </label>
+      </div>
+      <pre class="code-sample register-output" id="register-output" aria-label="problems json output"></pre>
     </section>
 
     <section class="registered-panel" data-view="register">

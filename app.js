@@ -7,6 +7,7 @@ const resetQuestionButton = document.getElementById("reset-question");
 const registerButton = document.getElementById("register-problem");
 const registerStatus = document.getElementById("register-status");
 const registerOutput = document.getElementById("register-output");
+const downloadProblemsButton = document.getElementById("download-problems");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
@@ -32,6 +33,7 @@ const adminGateStatus = document.getElementById("admin-gate-status");
 
 const GRID_SIZE = 4;
 const STORAGE_KEY = "origamiStoryProblems";
+const PROBLEMS_JSON_URL = "./problems.json";
 const ADMIN_PASSWORD = "origami-admin";
 const STATES = [
   "empty",
@@ -53,6 +55,7 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
+let initialProblems = [];
 
 function getStoredProblems() {
   try {
@@ -65,6 +68,10 @@ function getStoredProblems() {
   } catch (error) {
     return [];
   }
+}
+
+function getAllProblems() {
+  return [...initialProblems, ...getStoredProblems()];
 }
 
 function setStoredProblems(problems) {
@@ -236,6 +243,12 @@ if (adminPasswordInput) {
     }
   });
 }
+if (downloadProblemsButton) {
+  downloadProblemsButton.addEventListener("click", () => {
+    updateProblemsExport();
+    downloadProblemsJson();
+  });
+}
 if (viewButtons.length) {
   viewButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -325,6 +338,28 @@ function setRegisterStatus(message, type = "info") {
   if (type === "success") {
     registerStatus.classList.add("is-success");
   }
+}
+
+function updateProblemsExport() {
+  if (!registerOutput) {
+    return;
+  }
+  const payload = JSON.stringify(getAllProblems(), null, 2);
+  registerOutput.textContent = payload;
+  registerOutput.classList.toggle("is-visible", payload.length > 0);
+}
+
+function downloadProblemsJson() {
+  const payload = JSON.stringify(getAllProblems(), null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "problems.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
 }
 
 function setSolveStatus(message, type = "info") {
@@ -441,7 +476,7 @@ function updateRegisteredMeta(count) {
   }
 }
 
-function renderSolveOptions(problems = getStoredProblems()) {
+function renderSolveOptions(problems = getAllProblems()) {
   if (!solveProblemSelect) {
     return;
   }
@@ -482,7 +517,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
   loadSelectedProblem(problems);
 }
 
-function loadSelectedProblem(problems = getStoredProblems()) {
+function loadSelectedProblem(problems = getAllProblems()) {
   if (!solveProblemSelect || solveProblemSelect.disabled) {
     return;
   }
@@ -642,8 +677,9 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       updatedProblems.splice(index, 1);
       setStoredProblems(updatedProblems);
       renderRegisteredProblems(updatedProblems);
-      renderSolveOptions(updatedProblems);
+      renderSolveOptions(getAllProblems());
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
+      updateProblemsExport();
     });
     actions.appendChild(deleteButton);
 
@@ -685,7 +721,8 @@ function handleRegister() {
   }
   setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);
-  renderSolveOptions(problems);
+  renderSolveOptions(getAllProblems());
+  updateProblemsExport();
 }
 
 if (questionSvgInput) {
@@ -715,6 +752,25 @@ clearSvgPreview(
 );
 syncAnswerPayload();
 renderRegisteredProblems();
-renderSolveOptions();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
+setSolveMeta("problems.json を読み込み中...");
 setView("solve");
+updateProblemsExport();
+
+async function initializeProblems() {
+  try {
+    const response = await fetch(PROBLEMS_JSON_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    initialProblems = Array.isArray(data) ? data : [];
+  } catch (error) {
+    initialProblems = [];
+    setSolveMeta("problems.json を読み込めませんでした。");
+  }
+  renderSolveOptions(getAllProblems());
+  updateProblemsExport();
+}
+
+initializeProblems();

@@ -223,7 +223,7 @@ function resetSolveGrid() {
 
 function resetQuestionGrid() {
   currentSvgText = "";
-  clearSvgPreview(questionSvgPreview, "ここに問題SVGが表示されます。");
+  clearSvgPreview(questionSvgPreview, "ここに宇宙の謎SVGが表示されます。");
   syncAnswerPayload();
 }
 
@@ -325,7 +325,7 @@ function createSvgThumbnail(svgText) {
     return wrapper;
   }
   const img = document.createElement("img");
-  img.alt = "登録済みの問題SVG";
+  img.alt = "登録済みの宇宙の謎SVG";
   img.loading = "lazy";
   img.decoding = "async";
   img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgText)}`;
@@ -558,7 +558,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
   solveProblemSelect.innerHTML = "";
   if (problems.length === 0) {
     const option = document.createElement("option");
-    option.textContent = "登録された問題がありません";
+    option.textContent = "登録された宇宙の謎がありません";
     option.value = "";
     option.disabled = true;
     option.selected = true;
@@ -569,10 +569,10 @@ function renderSolveOptions(problems = getStoredProblems()) {
     resetSolveGrid();
     clearSvgPreview(
       solveSvgPreview,
-      "ここに選択した問題SVGが表示されます。"
+      "ここに選択した宇宙の謎SVGが表示されます。"
     );
-    setSolveMeta("登録された問題がありません。");
-    setSolveStatus("問題を登録するとここで解答できます。");
+    setSolveMeta("登録された宇宙の謎がありません。");
+    setSolveStatus("宇宙の謎を登録するとここで解答できます。");
     setSolveStory();
     return;
   }
@@ -580,7 +580,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
   problems.forEach((problem, index) => {
     const option = document.createElement("option");
     option.value = index.toString();
-    option.textContent = `問題 ${index + 1}`;
+    option.textContent = `宇宙の謎 ${index + 1}`;
     solveProblemSelect.appendChild(option);
   });
   if (currentSolveIndex !== null && currentSolveIndex < problems.length) {
@@ -603,9 +603,9 @@ function loadSelectedProblem(problems = getStoredProblems()) {
     resetSolveGrid();
     clearSvgPreview(
       solveSvgPreview,
-      "ここに選択した問題SVGが表示されます。"
+      "ここに選択した宇宙の謎SVGが表示されます。"
     );
-    setSolveStatus("問題を選択してください。");
+    setSolveStatus("宇宙の謎を選択してください。");
     setSolveStory();
     return;
   }
@@ -614,7 +614,7 @@ function loadSelectedProblem(problems = getStoredProblems()) {
   renderSvgPreview(
     currentSolveProblem.svg,
     solveSvgPreview,
-    "ここに選択した問題SVGが表示されます。"
+    "ここに選択した宇宙の謎SVGが表示されます。"
   );
   resetSolveGrid();
   setSolveStatus("回答を入力して提出してください。");
@@ -667,7 +667,7 @@ function isShapeCountMatch(answerGrid, solutionGrid) {
 
 function handleSolveSubmit() {
   if (!currentSolveProblem) {
-    setSolveStatus("解く問題を選択してください。", "error");
+    setSolveStatus("解く宇宙の謎を選択してください。", "error");
     setSolveStory();
     return;
   }
@@ -717,7 +717,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
     const header = document.createElement("div");
     header.className = "registered-header";
     const title = document.createElement("h3");
-    title.textContent = `問題 ${index + 1}`;
+    title.textContent = `宇宙の謎 ${index + 1}`;
     const meta = document.createElement("span");
     meta.className = "registered-date";
     meta.textContent = formatDate(problem.createdAt);
@@ -771,7 +771,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
 
 function handleRegister() {
   if (!currentSvgText) {
-    setRegisterStatus("問題SVGをアップロードしてください。", "error");
+    setRegisterStatus("宇宙の謎SVGをアップロードしてください。", "error");
     return;
   }
   const filledCellCount = getFilledCellCount();
@@ -809,7 +809,7 @@ if (questionSvgInput) {
       renderSvgPreview(
         currentSvgText,
         questionSvgPreview,
-        "ここに問題SVGが表示されます。"
+        "ここに宇宙の謎SVGが表示されます。"
       );
       syncAnswerPayload();
     };
@@ -842,10 +842,10 @@ if (registerCopyButton) {
   });
 }
 
-clearSvgPreview(questionSvgPreview, "ここに問題SVGが表示されます。");
+clearSvgPreview(questionSvgPreview, "ここに宇宙の謎SVGが表示されます。");
 clearSvgPreview(
   solveSvgPreview,
-  "ここに選択した問題SVGが表示されます。"
+  "ここに選択した宇宙の謎SVGが表示されます。"
 );
 syncAnswerPayload();
 updateRegisterPreview();
@@ -854,7 +854,7 @@ async function init() {
   const problems = await hydrateProblemsFromJson();
   renderRegisteredProblems(problems);
   setRegisterStatus(`現在の登録数: ${problems.length}`);
-  setSolveMeta("登録された問題を読み込み中...");
+  setSolveMeta("登録された宇宙の謎を読み込み中...");
   setView("solve");
   renderSolveOptions(problems);
 }

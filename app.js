@@ -83,8 +83,13 @@ async function fetchJsonProblems() {
     if (Array.isArray(data)) {
       return data;
     }
-    if (data && typeof data === "object" && data.svg && data.grid) {
-      return [data];
+    if (data && typeof data === "object") {
+      if (Array.isArray(data.items)) {
+        return data.items;
+      }
+      if (data.svg && data.grid) {
+        return [data];
+      }
     }
     return [];
   } catch (error) {

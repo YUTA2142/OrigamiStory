@@ -7,6 +7,8 @@ const resetQuestionButton = document.getElementById("reset-question");
 const registerButton = document.getElementById("register-problem");
 const registerStatus = document.getElementById("register-status");
 const registerOutput = document.getElementById("register-output");
+const importProblemsInput = document.getElementById("import-problems");
+const copyProblemsButton = document.getElementById("copy-problems");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
@@ -32,6 +34,7 @@ const adminGateStatus = document.getElementById("admin-gate-status");
 
 const GRID_SIZE = 4;
 const STORAGE_KEY = "origamiStoryProblems";
+const PROBLEMS_JSON_URL = "./problems.json";
 const ADMIN_PASSWORD = "origami-admin";
 const STATES = [
   "empty",
@@ -53,6 +56,7 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
+let initialProblems = [];
 
 function getStoredProblems() {
   try {
@@ -65,6 +69,10 @@ function getStoredProblems() {
   } catch (error) {
     return [];
   }
+}
+
+function getAllProblems() {
+  return [...initialProblems, ...getStoredProblems()];
 }
 
 function setStoredProblems(problems) {
@@ -236,6 +244,32 @@ if (adminPasswordInput) {
     }
   });
 }
+if (importProblemsInput) {
+  importProblemsInput.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = typeof reader.result === "string" ? reader.result : "";
+        const parsed = JSON.parse(text);
+        applyImportedProblems(parsed);
+      } catch (error) {
+        setRegisterStatus("problems.json の読み込みに失敗しました。", "error");
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = "";
+  });
+}
+if (copyProblemsButton) {
+  copyProblemsButton.addEventListener("click", () => {
+    updateProblemsExport();
+    copyProblemsJson();
+  });
+}
 if (viewButtons.length) {
   viewButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -324,6 +358,58 @@ function setRegisterStatus(message, type = "info") {
   }
   if (type === "success") {
     registerStatus.classList.add("is-success");
+  }
+}
+
+function updateProblemsExport() {
+  if (!registerOutput) {
+    return;
+  }
+  const payload = JSON.stringify(getAllProblems(), null, 2);
+  registerOutput.textContent = payload;
+  registerOutput.classList.toggle("is-visible", payload.length > 0);
+}
+
+function applyImportedProblems(problems) {
+  if (!Array.isArray(problems)) {
+    setRegisterStatus("problems.json の形式が正しくありません。", "error");
+    return;
+  }
+  setStoredProblems(problems);
+  renderRegisteredProblems(problems);
+  renderSolveOptions(getAllProblems());
+  updateProblemsExport();
+  setRegisterStatus(
+    `problems.json を読み込みました。登録数: ${problems.length}`,
+    "success"
+  );
+}
+
+function copyProblemsJson() {
+  const payload = JSON.stringify(getAllProblems(), null, 2);
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard
+      .writeText(payload)
+      .then(() => {
+        setRegisterStatus("JSONをコピーしました。", "success");
+      })
+      .catch(() => {
+        setRegisterStatus("JSONのコピーに失敗しました。", "error");
+      });
+    return;
+  }
+  if (registerOutput) {
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(registerOutput);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    const success = document.execCommand("copy");
+    selection?.removeAllRanges();
+    setRegisterStatus(
+      success ? "JSONをコピーしました。" : "JSONのコピーに失敗しました。",
+      success ? "success" : "error"
+    );
   }
 }
 
@@ -441,7 +527,7 @@ function updateRegisteredMeta(count) {
   }
 }
 
-function renderSolveOptions(problems = getStoredProblems()) {
+function renderSolveOptions(problems = getAllProblems()) {
   if (!solveProblemSelect) {
     return;
   }
@@ -482,7 +568,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
   loadSelectedProblem(problems);
 }
 
-function loadSelectedProblem(problems = getStoredProblems()) {
+function loadSelectedProblem(problems = getAllProblems()) {
   if (!solveProblemSelect || solveProblemSelect.disabled) {
     return;
   }
@@ -642,8 +728,9 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       updatedProblems.splice(index, 1);
       setStoredProblems(updatedProblems);
       renderRegisteredProblems(updatedProblems);
-      renderSolveOptions(updatedProblems);
+      renderSolveOptions(getAllProblems());
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
+      updateProblemsExport();
     });
     actions.appendChild(deleteButton);
 
@@ -683,9 +770,10 @@ function handleRegister() {
     registerOutput.textContent = "";
     registerOutput.classList.remove("is-visible");
   }
-  setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
   renderRegisteredProblems(problems);
-  renderSolveOptions(problems);
+  renderSolveOptions(getAllProblems());
+  updateProblemsExport();
+  setRegisterStatus(`登録しました。現在の登録数: ${problems.length}`, "success");
 }
 
 if (questionSvgInput) {
@@ -715,6 +803,25 @@ clearSvgPreview(
 );
 syncAnswerPayload();
 renderRegisteredProblems();
-renderSolveOptions();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
+setSolveMeta("problems.json を読み込み中...");
 setView("solve");
+updateProblemsExport();
+
+async function initializeProblems() {
+  try {
+    const response = await fetch(PROBLEMS_JSON_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    initialProblems = Array.isArray(data) ? data : [];
+  } catch (error) {
+    initialProblems = [];
+    setSolveMeta("problems.json を読み込めませんでした。");
+  }
+  renderSolveOptions(getAllProblems());
+  updateProblemsExport();
+}
+
+initializeProblems();

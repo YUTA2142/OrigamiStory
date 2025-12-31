@@ -32,7 +32,6 @@ const adminGateStatus = document.getElementById("admin-gate-status");
 
 const GRID_SIZE = 4;
 const STORAGE_KEY = "origamiStoryProblems";
-const PROBLEMS_JSON_URL = "./problems.json";
 const ADMIN_PASSWORD = "origami-admin";
 const STATES = [
   "empty",
@@ -54,7 +53,6 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
-let initialProblems = [];
 
 function getStoredProblems() {
   try {
@@ -67,10 +65,6 @@ function getStoredProblems() {
   } catch (error) {
     return [];
   }
-}
-
-function getAllProblems() {
-  return [...initialProblems, ...getStoredProblems()];
 }
 
 function setStoredProblems(problems) {
@@ -339,7 +333,7 @@ function updateProblemsExport() {
   if (!registerOutput) {
     return;
   }
-  const payload = JSON.stringify(getAllProblems(), null, 2);
+  const payload = JSON.stringify(getStoredProblems(), null, 2);
   registerOutput.textContent = payload;
   registerOutput.classList.toggle("is-visible", payload.length > 0);
 }
@@ -458,7 +452,7 @@ function updateRegisteredMeta(count) {
   }
 }
 
-function renderSolveOptions(problems = getAllProblems()) {
+function renderSolveOptions(problems = getStoredProblems()) {
   if (!solveProblemSelect) {
     return;
   }
@@ -499,7 +493,7 @@ function renderSolveOptions(problems = getAllProblems()) {
   loadSelectedProblem(problems);
 }
 
-function loadSelectedProblem(problems = getAllProblems()) {
+function loadSelectedProblem(problems = getStoredProblems()) {
   if (!solveProblemSelect || solveProblemSelect.disabled) {
     return;
   }
@@ -659,7 +653,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       updatedProblems.splice(index, 1);
       setStoredProblems(updatedProblems);
       renderRegisteredProblems(updatedProblems);
-      renderSolveOptions(getAllProblems());
+      renderSolveOptions(getStoredProblems());
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
       updateProblemsExport();
     });
@@ -702,7 +696,7 @@ function handleRegister() {
     registerOutput.classList.remove("is-visible");
   }
   renderRegisteredProblems(problems);
-  renderSolveOptions(getAllProblems());
+  renderSolveOptions(getStoredProblems());
 }
 
 if (questionSvgInput) {
@@ -733,22 +727,6 @@ clearSvgPreview(
 syncAnswerPayload();
 renderRegisteredProblems();
 setRegisterStatus(`現在の登録数: ${getStoredProblems().length}`);
-setSolveMeta("problems.json を読み込み中...");
+setSolveMeta("登録された問題を読み込み中...");
 setView("solve");
-
-async function initializeProblems() {
-  try {
-    const response = await fetch(PROBLEMS_JSON_URL);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    const data = await response.json();
-    initialProblems = Array.isArray(data) ? data : [];
-  } catch (error) {
-    initialProblems = [];
-    setSolveMeta("problems.json を読み込めませんでした。");
-  }
-  renderSolveOptions(getAllProblems());
-}
-
-initializeProblems();
+renderSolveOptions(getStoredProblems());

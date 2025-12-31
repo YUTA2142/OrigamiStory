@@ -361,7 +361,6 @@ function downloadProblemsJson() {
   anchor.remove();
   URL.revokeObjectURL(url);
 }
-
 function setSolveStatus(message, type = "info") {
   if (!solveResult) {
     return;

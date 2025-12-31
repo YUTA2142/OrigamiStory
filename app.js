@@ -7,6 +7,7 @@ const resetQuestionButton = document.getElementById("reset-question");
 const registerButton = document.getElementById("register-problem");
 const registerStatus = document.getElementById("register-status");
 const registerOutput = document.getElementById("register-output");
+const downloadProblemsButton = document.getElementById("download-problems");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
@@ -242,6 +243,12 @@ if (adminPasswordInput) {
     }
   });
 }
+if (downloadProblemsButton) {
+  downloadProblemsButton.addEventListener("click", () => {
+    updateProblemsExport();
+    downloadProblemsJson();
+  });
+}
 if (viewButtons.length) {
   viewButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -331,6 +338,28 @@ function setRegisterStatus(message, type = "info") {
   if (type === "success") {
     registerStatus.classList.add("is-success");
   }
+}
+
+function updateProblemsExport() {
+  if (!registerOutput) {
+    return;
+  }
+  const payload = JSON.stringify(getAllProblems(), null, 2);
+  registerOutput.textContent = payload;
+  registerOutput.classList.toggle("is-visible", payload.length > 0);
+}
+
+function downloadProblemsJson() {
+  const payload = JSON.stringify(getAllProblems(), null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "problems.json";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
 }
 
 function setSolveStatus(message, type = "info") {
@@ -650,6 +679,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
       renderRegisteredProblems(updatedProblems);
       renderSolveOptions(getAllProblems());
       setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
+      updateProblemsExport();
     });
     actions.appendChild(deleteButton);
 

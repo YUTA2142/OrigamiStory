@@ -303,6 +303,41 @@ function clearSvgPreview(targetElement, placeholderText) {
   targetElement.innerHTML = `<p>${placeholderText}</p>`;
 }
 
+function thickenFoldLines(svgElement) {
+  if (!svgElement) {
+    return;
+  }
+  const selectors = [
+    '[stroke="red"]',
+    '[stroke="#ff0000"]',
+    '[stroke="#f00"]',
+    '[stroke="blue"]',
+    '[stroke="#0000ff"]',
+    '[stroke="#00f"]',
+    '[style*="stroke:red"]',
+    '[style*="stroke: red"]',
+    '[style*="stroke:#ff0000"]',
+    '[style*="stroke: #ff0000"]',
+    '[style*="stroke:#f00"]',
+    '[style*="stroke: #f00"]',
+    '[style*="stroke:blue"]',
+    '[style*="stroke: blue"]',
+    '[style*="stroke:#0000ff"]',
+    '[style*="stroke: #0000ff"]',
+    '[style*="stroke:#00f"]',
+    '[style*="stroke: #00f"]'
+  ];
+  const foldLines = svgElement.querySelectorAll(selectors.join(","));
+  foldLines.forEach((element) => {
+    const rawWidth = element.getAttribute("stroke-width") || element.style.strokeWidth;
+    const baseWidth = Number.parseFloat(rawWidth);
+    const resolvedWidth = Number.isFinite(baseWidth) ? baseWidth : 2;
+    const newWidth = Math.max(resolvedWidth + 1, resolvedWidth * 1.4);
+    element.style.strokeWidth = `${newWidth}px`;
+    element.setAttribute("stroke-width", newWidth.toString());
+  });
+}
+
 function renderSvgPreview(svgText, targetElement, placeholderText) {
   if (!targetElement) {
     return;
@@ -311,6 +346,7 @@ function renderSvgPreview(svgText, targetElement, placeholderText) {
   const svgElement = parsed.querySelector("svg");
   targetElement.innerHTML = "";
   if (svgElement) {
+    thickenFoldLines(svgElement);
     targetElement.appendChild(svgElement);
   } else {
     clearSvgPreview(targetElement, placeholderText);
@@ -324,11 +360,18 @@ function createSvgThumbnail(svgText) {
     wrapper.innerHTML = "<p>SVGなし</p>";
     return wrapper;
   }
+  const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
+  const svgElement = parsed.querySelector("svg");
+  let svgSource = svgText;
+  if (svgElement) {
+    thickenFoldLines(svgElement);
+    svgSource = new XMLSerializer().serializeToString(svgElement);
+  }
   const img = document.createElement("img");
   img.alt = "登録済みの宇宙の謎SVG";
   img.loading = "lazy";
   img.decoding = "async";
-  img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgText)}`;
+  img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgSource)}`;
   wrapper.appendChild(img);
   return wrapper;
 }

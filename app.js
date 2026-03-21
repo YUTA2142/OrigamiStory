@@ -56,6 +56,13 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
+const SUPABASE_URL = window.SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
+const supabaseClient =
+  window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+let problemsCache = [];
 
 function normalizeProblem(problem) {
   return {
@@ -924,7 +931,7 @@ async function init() {
   setSolveMeta("Supabaseから宇宙の謎を読み込み中...");
   setView("solve");
   if (!supabaseClient) {
-
+    setRegisterStatus("Supabase設定が未完了です。index.htmlの設定を確認してください。", "error");
     renderRegisteredProblems([]);
     renderSolveOptions([]);
     return;
@@ -936,7 +943,6 @@ async function init() {
     renderSolveOptions(problemsCache);
   } catch (error) {
     setRegisterStatus(`読み込みに失敗しました: ${error.message}`, "error");
-
     renderRegisteredProblems([]);
     renderSolveOptions([]);
   }

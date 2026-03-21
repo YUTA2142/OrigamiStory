@@ -35,7 +35,6 @@ const adminPasswordCancel = document.getElementById("admin-password-cancel");
 const adminGateStatus = document.getElementById("admin-gate-status");
 
 const GRID_SIZE = 4;
-const STORAGE_KEY = "origamiStoryProblems";
 const ADMIN_PASSWORD = "origami-admin";
 const STATES = [
   "empty",
@@ -57,103 +56,90 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
+const SUPABASE_URL =
+  window.SUPABASE_URL ||
+  window.SUPABASE_PROJECT_URL ||
+  window.NEXT_PUBLIC_SUPABASE_URL ||
+  "";
+const SUPABASE_ANON_KEY =
+  window.SUPABASE_ANON_KEY ||
+  window.SUPABASE_KEY ||
+  window.SUPABASE_API_KEY ||
+  window.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  "";
+const supabaseSdk = window.supabase || window.supabaseJs || null;
+const supabaseClient =
+  supabaseSdk && SUPABASE_URL && SUPABASE_ANON_KEY
+    ? supabaseSdk.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+let problemsCache = [];
 
-function getStoredProblems() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    return [];
+function getSupabaseConfigError() {
+  if (!supabaseSdk) {
+    return "Supabase SDKの読み込みに失敗しました。";
   }
-}
-
-function setStoredProblems(problems) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
-}
-
-function downloadTextFile(filename, text) {
-  const blob = new Blob([text], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-
-}
-
-function createExportFilename() {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  return `origamiStoryProblems-${yyyy}${mm}${dd}.json`;
-}
-
-function normalizeImportedProblems(input) {
-  const list = Array.isArray(input) ? input : input?.items;
-  if (!Array.isArray(list)) {
-    return null;
+  if (!SUPABASE_URL) {
+    return "SUPABASE_URL が未設定です。";
   }
-  const normalized = list.filter((problem) => {
-    if (!problem || typeof problem !== "object") {
-      return false;
-    }
-    if (typeof problem.svg !== "string" || problem.svg.length === 0) {
-      return false;
-    }
-    if (!Array.isArray(problem.grid) || problem.grid.length !== GRID_SIZE) {
-      return false;
-    }
-    if (!problem.grid.every((row) => Array.isArray(row) && row.length === GRID_SIZE)) {
-      return false;
-    }
-    return true;
-  });
-  return normalized.map((problem) => ({
+  if (!SUPABASE_ANON_KEY) {
+    return "SUPABASE_ANON_KEY が未設定です。";
+  }
+  return "";
+}
+
+function normalizeProblem(problem) {
+  return {
+    id: problem.id,
     svg: problem.svg,
     grid: problem.grid,
     story: typeof problem.story === "string" ? problem.story : "",
-    createdAt: typeof problem.createdAt === "string" ? problem.createdAt : new Date().toISOString()
-  }));
+    createdAt: problem.created_at || problem.createdAt || ""
+  };
 }
 
-async function fetchJsonProblems() {
-  try {
-    const response = await fetch("problems.json", { cache: "no-store" });
-    if (!response.ok) {
-      return [];
-    }
-    const data = await response.json();
-    if (Array.isArray(data)) {
-      return data;
-    }
-    if (data && typeof data === "object") {
-      if (Array.isArray(data.items)) {
-        return data.items;
-      }
-      if (data.svg && data.grid) {
-        return [data];
-      }
-    }
-    return [];
-  } catch (error) {
-    return [];
+async function fetchProblemsFromSupabase() {
+  if (!supabaseClient) {
+    throw new Error("Supabase client is not configured.");
   }
+  const { data, error } = await supabaseClient
+    .from("problems")
+    .select("id, svg, grid, story, created_at")
+    .order("created_at", { ascending: true });
+  if (error) {
+    throw error;
+  }
+  return (data || []).map(normalizeProblem);
 }
 
-async function hydrateProblemsFromJson() {
-  const stored = getStoredProblems();
-  if (stored.length > 0) {
-    return stored;
+async function createProblemInSupabase(payload) {
+  if (!supabaseClient) {
+    throw new Error("Supabase client is not configured.");
   }
-  const fetched = await fetchJsonProblems();
-  if (fetched.length > 0) {
-    setStoredProblems(fetched);
+  const { data, error } = await supabaseClient
+    .from("problems")
+    .insert([
+      {
+        svg: payload.svg,
+        grid: payload.grid,
+        story: payload.story
+      }
+    ])
+    .select("id, svg, grid, story, created_at")
+    .single();
+  if (error) {
+    throw error;
   }
-  return getStoredProblems();
+  return normalizeProblem(data);
+}
+
+async function deleteProblemInSupabase(id) {
+  if (!supabaseClient) {
+    throw new Error("Supabase client is not configured.");
+  }
+  const { error } = await supabaseClient.from("problems").delete().eq("id", id);
+  if (error) {
+    throw error;
+  }
 }
 
 function formatDate(isoString) {
@@ -641,7 +627,7 @@ function updateRegisteredMeta(count) {
   }
 }
 
-function renderSolveOptions(problems = getStoredProblems()) {
+function renderSolveOptions(problems = problemsCache) {
   if (!solveProblemSelect) {
     return;
   }
@@ -682,7 +668,7 @@ function renderSolveOptions(problems = getStoredProblems()) {
   loadSelectedProblem(problems);
 }
 
-function loadSelectedProblem(problems = getStoredProblems()) {
+function loadSelectedProblem(problems = problemsCache) {
   if (!solveProblemSelect || solveProblemSelect.disabled) {
     return;
   }
@@ -795,7 +781,7 @@ function setView(view) {
   }
 }
 
-function renderRegisteredProblems(problems = getStoredProblems()) {
+function renderRegisteredProblems(problems = problemsCache) {
   if (!registeredList) {
     return;
   }
@@ -837,13 +823,21 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
     deleteButton.type = "button";
     deleteButton.className = "delete-button";
     deleteButton.textContent = "削除";
-    deleteButton.addEventListener("click", () => {
-      const updatedProblems = getStoredProblems();
-      updatedProblems.splice(index, 1);
-      setStoredProblems(updatedProblems);
-      renderRegisteredProblems(updatedProblems);
-      renderSolveOptions(getStoredProblems());
-      setRegisterStatus(`現在の登録数: ${updatedProblems.length}`);
+    deleteButton.addEventListener("click", async () => {
+      const target = problems[index];
+      if (!target?.id) {
+        setRegisterStatus("削除対象のIDが見つかりません。", "error");
+        return;
+      }
+      try {
+        await deleteProblemInSupabase(target.id);
+        problemsCache = problemsCache.filter((problem) => problem.id !== target.id);
+        renderRegisteredProblems(problemsCache);
+        renderSolveOptions(problemsCache);
+        setRegisterStatus(`現在の登録数: ${problemsCache.length}`);
+      } catch (error) {
+        setRegisterStatus(`削除に失敗しました: ${error.message}`, "error");
+      }
     });
     actions.appendChild(deleteButton);
 
@@ -859,7 +853,7 @@ function renderRegisteredProblems(problems = getStoredProblems()) {
   updateRegisteredMeta(problems.length);
 }
 
-function handleRegister() {
+async function handleRegister() {
   if (!currentSvgText) {
     setRegisterStatus("宇宙の謎SVGをアップロードしてください。", "error");
     return;
@@ -869,22 +863,25 @@ function handleRegister() {
     setRegisterStatus("答えの図形を1つ以上入力してください。", "error");
     return;
   }
-  const problems = getStoredProblems();
   const storyText = storyInput ? storyInput.value.trim() : "";
   const payload = {
     svg: currentSvgText,
     grid: answerState.map((row) => row.slice()),
-    story: storyText,
-    createdAt: new Date().toISOString()
+    story: storyText
   };
-  problems.push(payload);
-  setStoredProblems(problems);
-  if (registerOutput) {
-    registerOutput.textContent = "";
-    registerOutput.classList.remove("is-visible");
+  try {
+    const created = await createProblemInSupabase(payload);
+    problemsCache.push(created);
+    if (registerOutput) {
+      registerOutput.textContent = "";
+      registerOutput.classList.remove("is-visible");
+    }
+    renderRegisteredProblems(problemsCache);
+    renderSolveOptions(problemsCache);
+    setRegisterStatus(`現在の登録数: ${problemsCache.length}`, "success");
+  } catch (error) {
+    setRegisterStatus(`登録に失敗しました: ${error.message}`, "error");
   }
-  renderRegisteredProblems(problems);
-  renderSolveOptions(getStoredProblems());
 }
 
 if (questionSvgInput) {
@@ -934,36 +931,14 @@ if (registerCopyButton) {
 
 if (exportProblemsButton) {
   exportProblemsButton.addEventListener("click", () => {
-
+    setRegisterStatus("JSON書き出しは廃止しました。Supabaseを直接ご利用ください。");
   });
 }
 
 if (importProblemsInput) {
-  importProblemsInput.addEventListener("change", (event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(typeof reader.result === "string" ? reader.result : "[]");
-        const imported = normalizeImportedProblems(parsed);
-        if (!imported) {
-          setRegisterStatus("JSON形式が不正です。", "error");
-          return;
-        }
-        setStoredProblems(imported);
-        renderRegisteredProblems(imported);
-        renderSolveOptions(imported);
-        setRegisterStatus(`JSONを読み込みました（${imported.length}件）`, "success");
-      } catch (error) {
-        setRegisterStatus("JSONの読み込みに失敗しました。", "error");
-      } finally {
-        importProblemsInput.value = "";
-      }
-    };
-    reader.readAsText(file);
+  importProblemsInput.addEventListener("change", () => {
+    setRegisterStatus("JSON読み込みは廃止しました。Supabaseへ直接登録してください。");
+    importProblemsInput.value = "";
   });
 }
 
@@ -976,12 +951,32 @@ syncAnswerPayload();
 updateRegisterPreview();
 
 async function init() {
-  const problems = await hydrateProblemsFromJson();
-  renderRegisteredProblems(problems);
-  setRegisterStatus(`現在の登録数: ${problems.length}`);
-  setSolveMeta("登録された宇宙の謎を読み込み中...");
+  setSolveMeta("Supabaseから宇宙の謎を読み込み中...");
   setView("solve");
-  renderSolveOptions(problems);
+  if (!supabaseClient) {
+    const configError = getSupabaseConfigError();
+    setRegisterStatus(
+      `Supabase設定エラー: ${configError}（supabase-config.jsを確認してください）`,
+      "error"
+    );
+    setSolveMeta(`読み込み不可: ${configError}`);
+    setSolveStatus("Supabase設定を修正後に再読み込みしてください。", "error");
+    renderRegisteredProblems([]);
+    renderSolveOptions([]);
+    return;
+  }
+  try {
+    problemsCache = await fetchProblemsFromSupabase();
+    renderRegisteredProblems(problemsCache);
+    setRegisterStatus(`現在の登録数: ${problemsCache.length}`);
+    renderSolveOptions(problemsCache);
+  } catch (error) {
+    setRegisterStatus(`読み込みに失敗しました: ${error.message}`, "error");
+    setSolveMeta(`読み込み失敗: ${error.message}`);
+    setSolveStatus("Supabaseの接続またはRLS設定を確認してください。", "error");
+    renderRegisteredProblems([]);
+    renderSolveOptions([]);
+  }
 }
 
 init();

@@ -50,16 +50,32 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 const supabaseRuntimeConfig = window.ORIGAMI_SUPABASE_CONFIG || {};
+function isPlaceholderText(rawValue) {
+  const text = typeof rawValue === "string" ? rawValue.trim().toLowerCase() : "";
+  if (!text) {
+    return false;
+  }
+  const placeholderTokens = [
+    "your_project_ref",
+    "your-project-ref",
+    "your_project_url",
+    "your-supabase",
+    "your_supabase",
+    "your-anon-key",
+    "your_anon_key",
+    "<project-ref>",
+    "<your-anon-key>",
+    "<your_supabase",
+    "example.supabase.co"
+  ];
+  return placeholderTokens.some((token) => text.includes(token));
+}
 function normalizeSupabaseUrl(rawUrl) {
   const source = typeof rawUrl === "string" ? rawUrl.trim() : "";
   if (!source) {
     return "";
   }
-  if (
-    source.includes("YOUR_PROJECT_REF") ||
-    source.includes("YOUR_SUPABASE") ||
-    source.includes("example.supabase.co")
-  ) {
+  if (isPlaceholderText(source)) {
     return "";
   }
   if (/^https?:\/\//i.test(source)) {
@@ -81,6 +97,29 @@ function isValidHttpUrl(urlText) {
     return false;
   }
 }
+function normalizeSupabaseAnonKey(rawKey) {
+  const source = typeof rawKey === "string" ? rawKey.trim() : "";
+  if (!source || isPlaceholderText(source)) {
+    return "";
+  }
+  return source;
+}
+function isLikelySupabaseProjectUrl(urlText) {
+  if (!isValidHttpUrl(urlText)) {
+    return false;
+  }
+  try {
+    const parsed = new URL(urlText);
+    const hostname = parsed.hostname.toLowerCase();
+    if (!hostname.endsWith(".supabase.co")) {
+      return false;
+    }
+    const projectRef = hostname.replace(".supabase.co", "");
+    return /^[a-z0-9-]{6,30}$/.test(projectRef);
+  } catch {
+    return false;
+  }
+}
 const SUPABASE_URL =
   normalizeSupabaseUrl(
     supabaseRuntimeConfig.url ||
@@ -90,16 +129,19 @@ const SUPABASE_URL =
       ""
   );
 const SUPABASE_ANON_KEY =
-  supabaseRuntimeConfig.anonKey ||
-  window.SUPABASE_ANON_KEY ||
-  window.SUPABASE_KEY ||
-  window.SUPABASE_API_KEY ||
-  window.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  "";
+  normalizeSupabaseAnonKey(
+    supabaseRuntimeConfig.anonKey ||
+      window.SUPABASE_ANON_KEY ||
+      window.SUPABASE_KEY ||
+      window.SUPABASE_API_KEY ||
+      window.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      ""
+  );
 const hasValidSupabaseUrl = isValidHttpUrl(SUPABASE_URL);
+const hasLikelySupabaseUrl = isLikelySupabaseProjectUrl(SUPABASE_URL);
 const supabaseSdk = window.supabase || window.supabaseJs || null;
 const supabaseClient =
-  supabaseSdk && hasValidSupabaseUrl && SUPABASE_ANON_KEY
+  supabaseSdk && hasValidSupabaseUrl && hasLikelySupabaseUrl && SUPABASE_ANON_KEY
     ? supabaseSdk.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
 let problemsCache = [];
@@ -109,13 +151,19 @@ function getSupabaseConfigError() {
     return "Supabase SDKの読み込みに失敗しました。";
   }
   if (!SUPABASE_URL) {
-    return "SUPABASE_URL が未設定です。";
+    return "SUPABASE_URL が未設定、またはプレースホルダー値のままです。";
+  }
+  if (!hasValidSupabaseUrl) {
+    return `SUPABASE_URL が不正です: ${SUPABASE_URL}`;
+  }
+  if (!hasLikelySupabaseUrl) {
+    return `SUPABASE_URL が Supabase のプロジェクトURL形式ではありません: ${SUPABASE_URL}`;
   }
   if (!hasValidSupabaseUrl) {
     return `SUPABASE_URL が不正です: ${SUPABASE_URL}`;
   }
   if (!SUPABASE_ANON_KEY) {
-    return "SUPABASE_ANON_KEY が未設定です。";
+    return "SUPABASE_ANON_KEY が未設定、またはプレースホルダー値のままです。";
   }
   return "";
 }
@@ -933,9 +981,19 @@ async function init() {
     setRegisterStatus(`現在の登録数: ${problemsCache.length}`);
     renderSolveOptions(problemsCache);
   } catch (error) {
-    setRegisterStatus(`読み込みに失敗しました: ${error.message}`, "error");
-    setSolveMeta(`読み込み失敗: ${error.message}`);
-    setSolveStatus("Supabaseの接続またはRLS設定を確認してください。", "error");
+    const rawMessage = error?.message || String(error);
+    const networkHints = [
+      "Failed to fetch",
+      "ERR_NAME_NOT_RESOLVED",
+      "NetworkError"
+    ];
+    const hasNetworkError = networkHints.some((hint) => rawMessage.includes(hint));
+    const guidance = hasNetworkError
+      ? `読み込み失敗: ネットワークまたはURL解決に失敗しました。SUPABASE_URL を確認してください（現在: ${SUPABASE_URL}）。`
+      : `読み込み失敗: ${rawMessage}`;
+    setRegisterStatus(guidance, "error");
+    setSolveMeta(guidance);
+    setSolveStatus("SupabaseのURL・APIキー・RLS設定を確認してください。", "error");
     renderRegisteredProblems([]);
     renderSolveOptions([]);
   }

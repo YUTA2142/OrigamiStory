@@ -10,5 +10,6 @@ window.ORIGAMI_SUPABASE_CONFIG = {
 // Optional aliases also supported by app.js:
 // window.SUPABASE_PROJECT_URL = window.SUPABASE_URL;
 // window.SUPABASE_API_KEY = window.SUPABASE_ANON_KEY;
-// window.SUPABASE_URL = "ertadckqwfgpjywgjtjv";
-// window.SUPABASE_ANON_KEY = "sb_publishable__3jFTy-nzUMtHaGPjH0JwQ_oxLltMZb";
+// Example:
+// window.SUPABASE_URL = "https://<project-ref>.supabase.co";
+// window.SUPABASE_ANON_KEY = "<your-anon-key>";

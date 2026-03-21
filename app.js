@@ -55,6 +55,13 @@ function normalizeSupabaseUrl(rawUrl) {
   if (!source) {
     return "";
   }
+  if (
+    source.includes("YOUR_PROJECT_REF") ||
+    source.includes("YOUR_SUPABASE") ||
+    source.includes("example.supabase.co")
+  ) {
+    return "";
+  }
   if (/^https?:\/\//i.test(source)) {
     return source;
   }
@@ -62,6 +69,17 @@ function normalizeSupabaseUrl(rawUrl) {
     return `https://${source}.supabase.co`;
   }
   return source;
+}
+function isValidHttpUrl(urlText) {
+  if (!urlText) {
+    return false;
+  }
+  try {
+    const parsed = new URL(urlText);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 const SUPABASE_URL =
   normalizeSupabaseUrl(
@@ -78,9 +96,10 @@ const SUPABASE_ANON_KEY =
   window.SUPABASE_API_KEY ||
   window.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
+const hasValidSupabaseUrl = isValidHttpUrl(SUPABASE_URL);
 const supabaseSdk = window.supabase || window.supabaseJs || null;
 const supabaseClient =
-  supabaseSdk && SUPABASE_URL && SUPABASE_ANON_KEY
+  supabaseSdk && hasValidSupabaseUrl && SUPABASE_ANON_KEY
     ? supabaseSdk.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
 let problemsCache = [];
@@ -91,6 +110,9 @@ function getSupabaseConfigError() {
   }
   if (!SUPABASE_URL) {
     return "SUPABASE_URL が未設定です。";
+  }
+  if (!hasValidSupabaseUrl) {
+    return `SUPABASE_URL が不正です: ${SUPABASE_URL}`;
   }
   if (!SUPABASE_ANON_KEY) {
     return "SUPABASE_ANON_KEY が未設定です。";

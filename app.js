@@ -159,6 +159,9 @@ function getSupabaseConfigError() {
   if (!hasLikelySupabaseUrl) {
     return `SUPABASE_URL が Supabase のプロジェクトURL形式ではありません: ${SUPABASE_URL}`;
   }
+  if (!hasValidSupabaseUrl) {
+    return `SUPABASE_URL が不正です: ${SUPABASE_URL}`;
+  }
   if (!SUPABASE_ANON_KEY) {
     return "SUPABASE_ANON_KEY が未設定、またはプレースホルダー値のままです。";
   }

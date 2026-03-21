@@ -28,14 +28,8 @@ const storyBackButton = document.getElementById("story-back");
 const storyReveal = document.querySelector(".story-reveal");
 const viewButtons = document.querySelectorAll("[data-view-button]");
 const viewSections = document.querySelectorAll("section[data-view]");
-const adminGate = document.getElementById("admin-gate");
-const adminPasswordInput = document.getElementById("admin-password-input");
-const adminPasswordSubmit = document.getElementById("admin-password-submit");
-const adminPasswordCancel = document.getElementById("admin-password-cancel");
-const adminGateStatus = document.getElementById("admin-gate-status");
 
 const GRID_SIZE = 4;
-const ADMIN_PASSWORD = "origami-admin";
 const STATES = [
   "empty",
   "square",
@@ -55,14 +49,46 @@ let currentSvgText = "";
 let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
-let adminAccessGranted = false;
 const supabaseRuntimeConfig = window.ORIGAMI_SUPABASE_CONFIG || {};
+function normalizeSupabaseUrl(rawUrl) {
+  const source = typeof rawUrl === "string" ? rawUrl.trim() : "";
+  if (!source) {
+    return "";
+  }
+  if (
+    source.includes("YOUR_PROJECT_REF") ||
+    source.includes("YOUR_SUPABASE") ||
+    source.includes("example.supabase.co")
+  ) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(source)) {
+    return source;
+  }
+  if (/^[a-z0-9-]+$/i.test(source)) {
+    return `https://${source}.supabase.co`;
+  }
+  return source;
+}
+function isValidHttpUrl(urlText) {
+  if (!urlText) {
+    return false;
+  }
+  try {
+    const parsed = new URL(urlText);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 const SUPABASE_URL =
-  supabaseRuntimeConfig.url ||
-  window.SUPABASE_URL ||
-  window.SUPABASE_PROJECT_URL ||
-  window.NEXT_PUBLIC_SUPABASE_URL ||
-  "";
+  normalizeSupabaseUrl(
+    supabaseRuntimeConfig.url ||
+      window.SUPABASE_URL ||
+      window.SUPABASE_PROJECT_URL ||
+      window.NEXT_PUBLIC_SUPABASE_URL ||
+      ""
+  );
 const SUPABASE_ANON_KEY =
   supabaseRuntimeConfig.anonKey ||
   window.SUPABASE_ANON_KEY ||
@@ -70,9 +96,10 @@ const SUPABASE_ANON_KEY =
   window.SUPABASE_API_KEY ||
   window.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
+const hasValidSupabaseUrl = isValidHttpUrl(SUPABASE_URL);
 const supabaseSdk = window.supabase || window.supabaseJs || null;
 const supabaseClient =
-  supabaseSdk && SUPABASE_URL && SUPABASE_ANON_KEY
+  supabaseSdk && hasValidSupabaseUrl && SUPABASE_ANON_KEY
     ? supabaseSdk.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
 let problemsCache = [];
@@ -83,6 +110,9 @@ function getSupabaseConfigError() {
   }
   if (!SUPABASE_URL) {
     return "SUPABASE_URL が未設定です。";
+  }
+  if (!hasValidSupabaseUrl) {
+    return `SUPABASE_URL が不正です: ${SUPABASE_URL}`;
   }
   if (!SUPABASE_ANON_KEY) {
     return "SUPABASE_ANON_KEY が未設定です。";
@@ -292,33 +322,11 @@ if (storyBackButton) {
     setView("solve");
   });
 }
-if (adminPasswordSubmit) {
-  adminPasswordSubmit.addEventListener("click", () => {
-    handleAdminAccess();
-  });
-}
-if (adminPasswordCancel) {
-  adminPasswordCancel.addEventListener("click", () => {
-    closeAdminGate();
-  });
-}
-if (adminPasswordInput) {
-  adminPasswordInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleAdminAccess();
-    }
-  });
-}
 if (viewButtons.length) {
   viewButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const targetView = button.getAttribute("data-view-button");
       if (targetView) {
-        if (targetView === "register" && !adminAccessGranted) {
-          openAdminGate();
-          return;
-        }
         setView(targetView);
       }
     });
@@ -534,55 +542,6 @@ function setSolveMeta(message) {
   if (solveMeta) {
     solveMeta.textContent = message;
   }
-}
-
-function setAdminGateStatus(message, type = "info") {
-  if (!adminGateStatus) {
-    return;
-  }
-  adminGateStatus.textContent = message;
-  adminGateStatus.classList.remove("is-error", "is-success");
-  if (type === "error") {
-    adminGateStatus.classList.add("is-error");
-  }
-  if (type === "success") {
-    adminGateStatus.classList.add("is-success");
-  }
-}
-
-function openAdminGate() {
-  if (!adminGate) {
-    return;
-  }
-  adminGate.hidden = false;
-  setAdminGateStatus("");
-  if (adminPasswordInput) {
-    adminPasswordInput.value = "";
-    adminPasswordInput.focus();
-  }
-}
-
-function closeAdminGate() {
-  if (!adminGate) {
-    return;
-  }
-  adminGate.hidden = true;
-  setAdminGateStatus("");
-}
-
-function handleAdminAccess() {
-  const password = adminPasswordInput ? adminPasswordInput.value : "";
-  if (password !== ADMIN_PASSWORD) {
-    setAdminGateStatus("パスワードが違います。", "error");
-    if (adminPasswordInput) {
-      adminPasswordInput.focus();
-    }
-    return;
-  }
-  adminAccessGranted = true;
-  setAdminGateStatus("管理者として認証しました。", "success");
-  closeAdminGate();
-  setView("register");
 }
 
 function setStoryTitle(index = null) {

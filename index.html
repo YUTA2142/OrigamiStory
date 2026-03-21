@@ -166,6 +166,13 @@ SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
     <section class="registered-panel" data-view="register">
       <h2>6. 登録済みの宇宙の謎</h2>
       <p>登録した宇宙の謎を一覧で確認し、不要なものを削除できます。</p>
+      <div class="controls">
+        <button type="button" class="ghost-button" id="export-problems-json">JSONを書き出す</button>
+        <label class="ghost-button">
+          JSONを読み込む
+          <input type="file" id="import-problems-json" accept="application/json" hidden />
+        </label>
+      </div>
       <div class="registered-meta">
         <span>登録数:</span>
         <strong id="registered-count">0</strong>

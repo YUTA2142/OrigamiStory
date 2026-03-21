@@ -56,36 +56,6 @@ let currentSolveIndex = null;
 let currentSolveProblem = null;
 let storyRevealTimeoutId = null;
 let adminAccessGranted = false;
-const SUPABASE_URL =
-  window.SUPABASE_URL ||
-  window.SUPABASE_PROJECT_URL ||
-  window.NEXT_PUBLIC_SUPABASE_URL ||
-  "";
-const SUPABASE_ANON_KEY =
-  window.SUPABASE_ANON_KEY ||
-  window.SUPABASE_KEY ||
-  window.SUPABASE_API_KEY ||
-  window.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  "";
-const supabaseSdk = window.supabase || window.supabaseJs || null;
-const supabaseClient =
-  supabaseSdk && SUPABASE_URL && SUPABASE_ANON_KEY
-    ? supabaseSdk.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
-let problemsCache = [];
-
-function getSupabaseConfigError() {
-  if (!supabaseSdk) {
-    return "Supabase SDKの読み込みに失敗しました。";
-  }
-  if (!SUPABASE_URL) {
-    return "SUPABASE_URL が未設定です。";
-  }
-  if (!SUPABASE_ANON_KEY) {
-    return "SUPABASE_ANON_KEY が未設定です。";
-  }
-  return "";
-}
 
 function normalizeProblem(problem) {
   return {
@@ -954,13 +924,7 @@ async function init() {
   setSolveMeta("Supabaseから宇宙の謎を読み込み中...");
   setView("solve");
   if (!supabaseClient) {
-    const configError = getSupabaseConfigError();
-    setRegisterStatus(
-      `Supabase設定エラー: ${configError}（supabase-config.jsを確認してください）`,
-      "error"
-    );
-    setSolveMeta(`読み込み不可: ${configError}`);
-    setSolveStatus("Supabase設定を修正後に再読み込みしてください。", "error");
+
     renderRegisteredProblems([]);
     renderSolveOptions([]);
     return;
@@ -972,8 +936,7 @@ async function init() {
     renderSolveOptions(problemsCache);
   } catch (error) {
     setRegisterStatus(`読み込みに失敗しました: ${error.message}`, "error");
-    setSolveMeta(`読み込み失敗: ${error.message}`);
-    setSolveStatus("Supabaseの接続またはRLS設定を確認してください。", "error");
+
     renderRegisteredProblems([]);
     renderSolveOptions([]);
   }

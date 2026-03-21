@@ -11,10 +11,10 @@
 ## 1) ブラウザから既存データをエクスポート
 
 
+
 ```js
 copy(localStorage.getItem("origamiStoryProblems") || "[]");
 ```
-
 
 
 ## 2) Supabase 側のテーブル作成

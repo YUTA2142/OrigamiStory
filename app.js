@@ -81,11 +81,7 @@ function downloadTextFile(filename, text) {
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
-  anchor.style.display = "none";
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+
 }
 
 function createExportFilename() {
@@ -938,14 +934,7 @@ if (registerCopyButton) {
 
 if (exportProblemsButton) {
   exportProblemsButton.addEventListener("click", () => {
-    try {
-      const problems = getStoredProblems();
-      const payload = JSON.stringify(problems, null, 2);
-      downloadTextFile(createExportFilename(), payload);
-      setRegisterStatus(`JSONを書き出しました（${problems.length}件）`, "success");
-    } catch (error) {
-      setRegisterStatus("JSONの書き出しに失敗しました。", "error");
-    }
+
   });
 }
 

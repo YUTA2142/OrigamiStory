@@ -63,10 +63,3 @@ async function deleteProblem(id) {
 
 ## 6. とりあえずテーブルだけ作りたい場合
 
-`docs/supabase_minimal.sql` を使ってください。`problems` テーブル作成に必要な最小セットだけを含みます。
-
-
-## 7. 既存localStorageデータの移行
-
-既存データを引き継ぐ場合は `docs/supabase_data_migration.md` を参照してください。
-APIキー（anon / service_role）の使い分けも記載しています。

@@ -10,45 +10,12 @@
 
 ## 1) ブラウザから既存データをエクスポート
 
-### いちばん安全で簡単な方法（推奨）
 
-管理者画面の「登録済みの宇宙の謎」セクションにある **「JSONを書き出す」** ボタンを押してください。  
-`origamiStoryProblems-YYYYMMDD.json` がダウンロードされます。
-
-もし何も起きない場合は、ブラウザのダウンロードブロック設定を確認してください。
-
-### どこで実行する？
-
-**OrigamiStory を実際に開いているブラウザの DevTools Console** で実行します。  
-（VSCode のターミナルや Supabase SQL Editor ではありません）
-
-- 例: `http://localhost:5500` や公開URLで OrigamiStory を開く
-- そのページ上で Console を開く
-  - Chrome/Edge: `F12` → **Console**
-  - Mac Chrome: `⌥ + ⌘ + I` → **Console**
-  - Firefox: `F12` → **Console**
-
-その Console で次を実行:
 
 ```js
 copy(localStorage.getItem("origamiStoryProblems") || "[]");
 ```
 
-実行後、JSON文字列がクリップボードへ入るので、テキストエディタに貼り付けて `problems-export.json` として保存します。
-
-> `copy(...)` が使えないブラウザでは、`localStorage.getItem("origamiStoryProblems")` を実行して表示結果を手動コピーしてください。
-> `copy(...)` の戻り値は通常 `undefined` です。`undefined` 表示は失敗ではありません。
-
-### 実行確認コマンド
-
-Console で次を実行して、件数が `1` 以上ならデータは存在しています。
-
-```js
-JSON.parse(localStorage.getItem("origamiStoryProblems") || "[]").length
-```
-
-`0` の場合は、そのブラウザにまだ登録データがない状態です（別PC/別ブラウザにある可能性あり）。
-`5` のように `1` 以上が出た場合は、その件数分の問題データが入っています（例: `5` = 5件）。
 
 ## 2) Supabase 側のテーブル作成
 

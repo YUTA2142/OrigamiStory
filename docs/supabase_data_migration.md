@@ -10,13 +10,12 @@
 
 ## 1) ブラウザから既存データをエクスポート
 
-アプリを開いた状態で DevTools Console を開き、次を実行:
 
 ```js
 copy(localStorage.getItem("origamiStoryProblems") || "[]");
 ```
 
-貼り付け先に `problems-export.json` として保存します。
+
 
 ## 2) Supabase 側のテーブル作成
 

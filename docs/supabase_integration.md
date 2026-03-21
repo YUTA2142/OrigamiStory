@@ -63,4 +63,3 @@ async function deleteProblem(id) {
 
 ## 6. とりあえずテーブルだけ作りたい場合
 
-`docs/supabase_minimal.sql` を使ってください。`problems` テーブル作成に必要な最小セットだけを含みます。

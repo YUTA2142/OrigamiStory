@@ -12,6 +12,8 @@ const registerCopyStatus = document.getElementById("register-copy-status");
 const registeredList = document.getElementById("registered-list");
 const registeredEmpty = document.getElementById("registered-empty");
 const registeredCount = document.getElementById("registered-count");
+const exportProblemsButton = document.getElementById("export-problems-json");
+const importProblemsInput = document.getElementById("import-problems-json");
 const storyInput = document.getElementById("story-input");
 const solveProblemSelect = document.getElementById("solve-problem-select");
 const solveSvgPreview = document.getElementById("solve-svg-preview");
@@ -71,6 +73,52 @@ function getStoredProblems() {
 
 function setStoredProblems(problems) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
+}
+
+function downloadTextFile(filename, text) {
+  const blob = new Blob([text], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function createExportFilename() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `origamiStoryProblems-${yyyy}${mm}${dd}.json`;
+}
+
+function normalizeImportedProblems(input) {
+  const list = Array.isArray(input) ? input : input?.items;
+  if (!Array.isArray(list)) {
+    return null;
+  }
+  const normalized = list.filter((problem) => {
+    if (!problem || typeof problem !== "object") {
+      return false;
+    }
+    if (typeof problem.svg !== "string" || problem.svg.length === 0) {
+      return false;
+    }
+    if (!Array.isArray(problem.grid) || problem.grid.length !== GRID_SIZE) {
+      return false;
+    }
+    if (!problem.grid.every((row) => Array.isArray(row) && row.length === GRID_SIZE)) {
+      return false;
+    }
+    return true;
+  });
+  return normalized.map((problem) => ({
+    svg: problem.svg,
+    grid: problem.grid,
+    story: typeof problem.story === "string" ? problem.story : "",
+    createdAt: typeof problem.createdAt === "string" ? problem.createdAt : new Date().toISOString()
+  }));
 }
 
 async function fetchJsonProblems() {
@@ -882,6 +930,44 @@ if (registerCopyButton) {
       .catch(() => {
         setCopyStatus("コピーに失敗しました。", "error");
       });
+  });
+}
+
+if (exportProblemsButton) {
+  exportProblemsButton.addEventListener("click", () => {
+    const problems = getStoredProblems();
+    const payload = JSON.stringify(problems, null, 2);
+    downloadTextFile(createExportFilename(), payload);
+    setRegisterStatus(`JSONを書き出しました（${problems.length}件）`, "success");
+  });
+}
+
+if (importProblemsInput) {
+  importProblemsInput.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(typeof reader.result === "string" ? reader.result : "[]");
+        const imported = normalizeImportedProblems(parsed);
+        if (!imported) {
+          setRegisterStatus("JSON形式が不正です。", "error");
+          return;
+        }
+        setStoredProblems(imported);
+        renderRegisteredProblems(imported);
+        renderSolveOptions(imported);
+        setRegisterStatus(`JSONを読み込みました（${imported.length}件）`, "success");
+      } catch (error) {
+        setRegisterStatus("JSONの読み込みに失敗しました。", "error");
+      } finally {
+        importProblemsInput.value = "";
+      }
+    };
+    reader.readAsText(file);
   });
 }
 

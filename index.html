@@ -90,7 +90,7 @@
       </p>
     </section>
 
-    <section class="story-view" data-view="story">
+    <section class="story-view" data-view="story" hidden>
       <div class="story-content">
         <h2 id="story-title">宇宙の記憶</h2>
         <p class="story-lead">正解したときだけ、物語が宇宙の中央に現れます。</p>
@@ -101,7 +101,7 @@
       </div>
     </section>
 
-    <section class="upload-panel" data-view="register">
+    <section class="upload-panel" data-view="register" hidden>
       <h2>1. SVGをアップロード</h2>
       <div class="upload-row">
         <label class="file-label">
@@ -114,7 +114,7 @@
       </div>
     </section>
 
-    <section class="input-panel" data-view="register">
+    <section class="input-panel" data-view="register" hidden>
       <h2>2. 図形を入力 (4×4)</h2>
       <p>クリックで「空白 → 正方形 → 三角形」へ切り替えます。1つでも入力すれば登録できます。</p>
       <div class="grid grid-tight" id="answer-grid" aria-label="4x4 shape grid"></div>
@@ -124,7 +124,7 @@
       </div>
     </section>
 
-    <section class="story-panel" data-view="register">
+    <section class="story-panel" data-view="register" hidden>
       <h2>3. 宇宙の記憶を入力</h2>
       <p>宇宙の謎を解いたときに表示したい宇宙の記憶を入力します。</p>
       <label class="story-input">
@@ -133,14 +133,14 @@
       </label>
     </section>
 
-    <section class="preview-panel" data-view="register">
+    <section class="preview-panel" data-view="register" hidden>
       <h2>4. SVGプレビュー</h2>
       <div class="svg-preview" id="question-svg-preview" aria-label="SVG preview">
         <p>ここにアップロードしたSVGが表示されます。</p>
       </div>
     </section>
 
-    <section class="register-panel" data-view="register">
+    <section class="register-panel" data-view="register" hidden>
       <h2>5. 宇宙の謎を登録</h2>
       <p>宇宙の謎SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
       <div class="controls">
@@ -163,7 +163,7 @@ SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
       </div>
     </section>
 
-    <section class="registered-panel" data-view="register">
+    <section class="registered-panel" data-view="register" hidden>
       <h2>6. 登録済みの宇宙の謎</h2>
       <p>登録した宇宙の謎を一覧で確認し、不要なものを削除できます。</p>
       <div class="controls">

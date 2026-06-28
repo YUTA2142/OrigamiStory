@@ -9,14 +9,18 @@
 <body>
   <div class="space-planets" aria-hidden="true"></div>
   <div class="story-reveal" aria-hidden="true">
-    <span>宇宙の謎をひとつ解き明かした！</span>
+    <span data-i18n="story.reveal">宇宙の謎をひとつ解き明かした！</span>
   </div>
   <header class="hero">
+    <div class="language-switcher" aria-label="Language selector">
+      <button type="button" class="language-button is-active" data-language="ja">日本語</button>
+      <button type="button" class="language-button" data-language="en">English</button>
+    </div>
     <h1 class="hero-title" aria-label="OrigamiStory 宇宙の謎を解く">
       <span>OrigamiStory</span>
-      <span>宇宙の謎を解く</span>
+      <span data-i18n="hero.subtitle">宇宙の謎を解く</span>
     </h1>
-    <p>登録された宇宙の謎に対して4×4の図形を入力し、答え合わせを行います。</p>
+    <p data-i18n="hero.description">登録された宇宙の謎に対して4×4の図形を入力し、答え合わせを行います。</p>
   </header>
 
   <main>
@@ -144,7 +148,7 @@ SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
       <div class="controls">
         <button type="button" class="ghost-button" id="export-problems-json">JSONを書き出す</button>
         <label class="ghost-button">
-          JSONを読み込む
+          <span id="import-problems-label">JSONを読み込む</span>
           <input type="file" id="import-problems-json" accept="application/json" hidden />
         </label>
       </div>
@@ -158,7 +162,7 @@ SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
   </main>
 
   <footer>
-    <p>OrigamiStory - 宇宙の謎を解く</p>
+    <p data-i18n="footer.title">OrigamiStory - 宇宙の謎を解く</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

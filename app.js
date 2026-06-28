@@ -28,6 +28,220 @@ const storyBackButton = document.getElementById("story-back");
 const storyReveal = document.querySelector(".story-reveal");
 const viewButtons = document.querySelectorAll("[data-view-button]");
 const viewSections = document.querySelectorAll("section[data-view]");
+const languageButtons = document.querySelectorAll("[data-language]");
+
+const I18N = {
+  ja: {
+    pageTitle: "OrigamiStory - 宇宙の謎を解く",
+    "hero.subtitle": "宇宙の謎を解く",
+    "hero.description": "登録された宇宙の謎に対して4×4の図形を入力し、答え合わせを行います。",
+    "story.reveal": "宇宙の謎をひとつ解き明かした！",
+    "footer.title": "OrigamiStory - 宇宙の謎を解く",
+    storyTitle: "宇宙の記憶",
+    storyTitleNumber: (n) => `宇宙の記憶 No.${n}`,
+    registeredCount: (n) => `登録数: ${n}`,
+    problemName: (n) => `宇宙の謎 ${n}`,
+    noProblemsOption: "登録された宇宙の謎がありません",
+    noProblemsMeta: "登録された宇宙の謎がありません。",
+    noProblemsStatus: "宇宙の謎を登録するとここで解答できます。",
+    selectedSvgPlaceholder: "ここに選択した宇宙の謎SVGが表示されます。",
+    questionSvgPlaceholder: "ここに宇宙の謎SVGが表示されます。",
+    answerPrompt: "回答を入力して提出してください。",
+    selectPrompt: "宇宙の謎を選択してください。",
+    chooseProblem: "解く宇宙の謎を選択してください。",
+    correct: "正解です！素晴らしい！",
+    noStory: "宇宙の記憶はまだ設定されていません。",
+    incorrect: "不正解です。もう一度チャレンジしてください。",
+    uploadSvg: "宇宙の謎SVGをアップロードしてください。",
+    needShape: "答えの図形を1つ以上入力してください。",
+    registerCount: (n) => `現在の登録数: ${n}`,
+    deleteMissing: "削除対象のIDが見つかりません。",
+    deleteFailed: (m) => `削除に失敗しました: ${m}`,
+    registerFailed: (m) => `登録に失敗しました: ${m}`,
+    copySuccess: "JSONをコピーしました。",
+    copyFailed: "コピーに失敗しました。",
+    exportRemoved: "JSON書き出しは廃止しました。Supabaseを直接ご利用ください。",
+    importRemoved: "JSON読み込みは廃止しました。Supabaseへ直接登録してください。",
+    loading: "Supabaseから宇宙の謎を読み込み中...",
+    configPrefix: (m) => `Supabase設定エラー: ${m}（supabase-config.jsを確認してください）`,
+    unavailable: (m) => `読み込み不可: ${m}`,
+    fixConfig: "Supabase設定を修正後に再読み込みしてください。",
+    loadFailedNetwork: (u) => `読み込み失敗: ネットワークまたはURL解決に失敗しました。SUPABASE_URL を確認してください（現在: ${u}）。`,
+    loadFailed: (m) => `読み込み失敗: ${m}`,
+    checkSupabase: "SupabaseのURL・APIキー・RLS設定を確認してください。",
+    deleteButton: "削除",
+    noSvg: "SVGなし",
+    registeredSvgAlt: "登録済みの宇宙の謎SVG",
+    previewNotReady: "SVGと図形と宇宙の記憶を入力するとJSONが表示されます。"
+  },
+  en: {
+    pageTitle: "OrigamiStory - Solve the Mysteries of Space",
+    "hero.subtitle": "Solve the Mysteries of Space",
+    "hero.description": "Choose a registered space mystery, enter the resulting 4×4 shape pattern, and check your answer.",
+    "story.reveal": "You uncovered one of space's mysteries!",
+    "footer.title": "OrigamiStory - Solve the Mysteries of Space",
+    storyTitle: "Cosmic Memory",
+    storyTitleNumber: (n) => `Cosmic Memory No.${n}`,
+    registeredCount: (n) => `Registered: ${n}`,
+    problemName: (n) => `Space Mystery ${n}`,
+    noProblemsOption: "No space mysteries are registered",
+    noProblemsMeta: "No space mysteries are registered.",
+    noProblemsStatus: "Register a space mystery to solve it here.",
+    selectedSvgPlaceholder: "The selected space mystery SVG will appear here.",
+    questionSvgPlaceholder: "The space mystery SVG will appear here.",
+    answerPrompt: "Enter your answer and submit it.",
+    selectPrompt: "Please choose a space mystery.",
+    chooseProblem: "Please choose a space mystery to solve.",
+    correct: "Correct! Excellent work!",
+    noStory: "No cosmic memory has been set yet.",
+    incorrect: "Not quite. Try again.",
+    uploadSvg: "Please upload a space mystery SVG.",
+    needShape: "Please enter at least one answer shape.",
+    registerCount: (n) => `Current registrations: ${n}`,
+    deleteMissing: "Could not find the ID to delete.",
+    deleteFailed: (m) => `Delete failed: ${m}`,
+    registerFailed: (m) => `Registration failed: ${m}`,
+    copySuccess: "Copied JSON.",
+    copyFailed: "Copy failed.",
+    exportRemoved: "JSON export has been discontinued. Please use Supabase directly.",
+    importRemoved: "JSON import has been discontinued. Please register directly in Supabase.",
+    loading: "Loading space mysteries from Supabase...",
+    configPrefix: (m) => `Supabase configuration error: ${m} (check supabase-config.js)`,
+    unavailable: (m) => `Cannot load: ${m}`,
+    fixConfig: "Fix the Supabase settings, then reload.",
+    loadFailedNetwork: (u) => `Load failed: network or URL resolution failed. Check SUPABASE_URL (current: ${u}).`,
+    loadFailed: (m) => `Load failed: ${m}`,
+    checkSupabase: "Check the Supabase URL, API key, and RLS settings.",
+    deleteButton: "Delete",
+    noSvg: "No SVG",
+    registeredSvgAlt: "Registered space mystery SVG",
+    previewNotReady: "Enter an SVG, shapes, and a cosmic memory to preview the JSON."
+  }
+};
+
+
+const STATIC_TEXT = {
+  ja: {
+    "solve1Title": "1. 宇宙の謎を選択",
+    "solve1Body": "登録されている宇宙の謎から解きたいものを選びます。",
+    "solveLabel": "宇宙の謎一覧",
+    "solve2Title": "2. 宇宙の謎の表示",
+    "solve2Body": "下の画像は折り紙の展開図です。\n赤線→山折り(Mountain)\n青線→谷折り(Valley)\n折った後にできる形を下のパネルに入力して下さい。",
+    "solve3Title": "3. 図形で回答",
+    "shapeHelp": "クリックで「空白 → 正方形 → 三角形」へ切り替えます。",
+    "resetShape": "図形をリセット",
+    "solve4Title": "4. 回答を提出",
+    "solve4Body": "入力された図形が登録された答えと一致するかを判定します。",
+    "submitAnswer": "回答を提出する",
+    "initialSolve": "宇宙の謎を選択して回答を入力してください。",
+    "storyLead": "正解したときだけ、物語が宇宙の中央に現れます。",
+    "storyBack": "宇宙の謎に戻る",
+    "uploadTitle": "1. SVGをアップロード",
+    "svgLabel": "宇宙の謎SVG",
+    "clearSvg": "SVGをクリア",
+    "inputTitle": "2. 図形を入力 (4×4)",
+    "inputBody": "クリックで「空白 → 正方形 → 三角形」へ切り替えます。1つでも入力すれば登録できます。",
+    "storyInputTitle": "3. 宇宙の記憶を入力",
+    "storyInputBody": "宇宙の謎を解いたときに表示したい宇宙の記憶を入力します。",
+    "storyInputLabel": "宇宙の記憶本文",
+    "previewTitle": "4. SVGプレビュー",
+    "registerTitle": "5. 宇宙の謎を登録",
+    "registerBody": "宇宙の謎SVGと答え（4×4の図形）を1つ以上入力したら登録できます。",
+    "registerButton": "登録する",
+    "registerInitial": "まだ登録されていません。",
+    "jsonPreview": "JSONプレビュー",
+    "copy": "コピー",
+    "registeredTitle": "6. 登録済みの宇宙の謎",
+    "registeredBody": "登録した宇宙の謎を一覧で確認し、不要なものを削除できます。",
+    "exportJson": "JSONを書き出す",
+    "importJson": "JSONを読み込む",
+    "countLabel": "登録数:",
+    "emptyRegistered": "登録済みの宇宙の謎はまだありません。"
+  },
+  en: {
+    "solve1Title": "1. Choose a Space Mystery",
+    "solve1Body": "Pick the registered space mystery you want to solve.",
+    "solveLabel": "Space mystery list",
+    "solve2Title": "2. View the Space Mystery",
+    "solve2Body": "The image below is an origami crease pattern.\nRed lines = Mountain folds\nBlue lines = Valley folds\nEnter the shape that appears after folding in the panel below.",
+    "solve3Title": "3. Answer with Shapes",
+    "shapeHelp": "Click to cycle: Blank → Square → Triangle.",
+    "resetShape": "Reset shapes",
+    "solve4Title": "4. Submit Your Answer",
+    "solve4Body": "Check whether your shape pattern matches the registered answer.",
+    "submitAnswer": "Submit answer",
+    "initialSolve": "Choose a space mystery and enter your answer.",
+    "storyLead": "The story appears at the center of space only when your answer is correct.",
+    "storyBack": "Back to mysteries",
+    "uploadTitle": "1. Upload an SVG",
+    "svgLabel": "Space mystery SVG",
+    "clearSvg": "Clear SVG",
+    "inputTitle": "2. Enter Shapes (4×4)",
+    "inputBody": "Click to cycle: Blank → Square → Triangle. You can register once at least one shape is entered.",
+    "storyInputTitle": "3. Enter a Cosmic Memory",
+    "storyInputBody": "Enter the cosmic memory to show after this mystery is solved.",
+    "storyInputLabel": "Cosmic memory text",
+    "previewTitle": "4. SVG Preview",
+    "registerTitle": "5. Register the Space Mystery",
+    "registerBody": "Register after adding a space mystery SVG and at least one answer shape in the 4×4 grid.",
+    "registerButton": "Register",
+    "registerInitial": "Not registered yet.",
+    "jsonPreview": "JSON Preview",
+    "copy": "Copy",
+    "registeredTitle": "6. Registered Space Mysteries",
+    "registeredBody": "Review registered mysteries and delete any you no longer need.",
+    "exportJson": "Export JSON",
+    "importJson": "Import JSON",
+    "countLabel": "Registered:",
+    "emptyRegistered": "No space mysteries have been registered yet."
+  }
+};
+const STATIC_BINDINGS = [
+  ["section.solve-panel:nth-of-type(1) h2", "solve1Title"], ["section.solve-panel:nth-of-type(1) p:not(.solve-meta)", "solve1Body"], [".select-label span", "solveLabel"],
+  ["section.solve-panel:nth-of-type(2) h2", "solve2Title"], ["section.solve-panel:nth-of-type(2) > p", "solve2Body"],
+  ["section.solve-panel:nth-of-type(3) h2", "solve3Title"], ["section.solve-panel:nth-of-type(3) > p", "shapeHelp"], ["#solve-reset-grid", "resetShape"],
+  ["section.solve-panel:nth-of-type(4) h2", "solve4Title"], ["section.solve-panel:nth-of-type(4) > p:not(.solve-status)", "solve4Body"], ["#submit-answer", "submitAnswer"],
+  [".story-lead", "storyLead"], ["#story-back", "storyBack"], [".upload-panel h2", "uploadTitle"], [".file-label span", "svgLabel"], ["#reset-question", "clearSvg"],
+  [".input-panel h2", "inputTitle"], [".input-panel > p", "inputBody"], ["#reset-grid", "resetShape"], [".story-panel h2", "storyInputTitle"], [".story-panel > p", "storyInputBody"], [".story-input span", "storyInputLabel"],
+  [".preview-panel h2", "previewTitle"], [".register-panel h2", "registerTitle"], [".register-panel > p:not(.register-status)", "registerBody"], ["#register-problem", "registerButton"], [".register-json-title", "jsonPreview"], ["#register-copy", "copy"],
+  [".registered-panel h2", "registeredTitle"], [".registered-panel > p:not(.registered-empty)", "registeredBody"], ["#export-problems-json", "exportJson"], ["#import-problems-label", "importJson"], [".registered-meta span", "countLabel"], ["#registered-empty", "emptyRegistered"]
+];
+function st(key) {
+  return (STATIC_TEXT[currentLanguage] || STATIC_TEXT.ja)[key] || STATIC_TEXT.ja[key] || key;
+}
+function applyStaticText() {
+  STATIC_BINDINGS.forEach(([selector, key]) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.textContent = st(key);
+    }
+  });
+  if (solveResult && !solveResult.classList.contains("is-error") && !solveResult.classList.contains("is-success") && !currentSolveProblem) {
+    solveResult.textContent = st("initialSolve");
+  }
+  if (registerStatus && !registerStatus.classList.contains("is-error") && !registerStatus.classList.contains("is-success") && problemsCache.length === 0) {
+    registerStatus.textContent = st("registerInitial");
+  }
+}
+let currentLanguage = localStorage.getItem("origamiLanguage") || "ja";
+function t(key, ...args) {
+  const dictionary = I18N[currentLanguage] || I18N.ja;
+  const value = dictionary[key] ?? I18N.ja[key] ?? key;
+  return typeof value === "function" ? value(...args) : value;
+}
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage;
+  document.title = t("pageTitle");
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  applyStaticText();
+  languageButtons.forEach((button) => {
+    const isActive = button.dataset.language === currentLanguage;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+}
 
 const GRID_SIZE = 4;
 const STATES = [
@@ -231,7 +445,7 @@ function formatDate(isoString) {
   if (Number.isNaN(date.getTime())) {
     return "";
   }
-  return date.toLocaleString("ja-JP");
+  return date.toLocaleString(currentLanguage === "en" ? "en-US" : "ja-JP");
 }
 
 function renderGrid(gridElement, stateGrid, options = {}) {
@@ -329,7 +543,7 @@ function resetSolveGrid() {
     renderGrid(solveGridElement, solveState, {
       interactive: true,
       onCellUpdate: () => {
-        setSolveStatus("回答を入力して提出してください。");
+        setSolveStatus(t("answerPrompt"));
       }
     });
   }
@@ -337,7 +551,7 @@ function resetSolveGrid() {
 
 function resetQuestionGrid() {
   currentSvgText = "";
-  clearSvgPreview(questionSvgPreview, "ここに宇宙の謎SVGが表示されます。");
+  clearSvgPreview(questionSvgPreview, t("questionSvgPlaceholder"));
   syncAnswerPayload();
 }
 
@@ -370,6 +584,23 @@ if (storyBackButton) {
     setView("solve");
   });
 }
+if (languageButtons.length) {
+  languageButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextLanguage = button.dataset.language;
+      if (!I18N[nextLanguage] || nextLanguage === currentLanguage) {
+        return;
+      }
+      currentLanguage = nextLanguage;
+      localStorage.setItem("origamiLanguage", currentLanguage);
+      applyLanguage();
+      renderSolveOptions(problemsCache);
+      renderRegisteredProblems(problemsCache);
+      setStoryTitle(currentSolveIndex === null ? null : currentSolveIndex + 1);
+    });
+  });
+}
+
 if (viewButtons.length) {
   viewButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -449,7 +680,7 @@ function createSvgThumbnail(svgText) {
   const wrapper = document.createElement("div");
   wrapper.className = "registered-svg";
   if (!svgText) {
-    wrapper.innerHTML = "<p>SVGなし</p>";
+    wrapper.innerHTML = `<p>${t("noSvg")}</p>`;
     return wrapper;
   }
   const parsed = new DOMParser().parseFromString(svgText, "image/svg+xml");
@@ -460,7 +691,7 @@ function createSvgThumbnail(svgText) {
     svgSource = new XMLSerializer().serializeToString(svgElement);
   }
   const img = document.createElement("img");
-  img.alt = "登録済みの宇宙の謎SVG";
+  img.alt = t("registeredSvgAlt");
   img.loading = "lazy";
   img.decoding = "async";
   img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgSource)}`;
@@ -534,7 +765,7 @@ function updateRegisterPreview() {
   }
   if (!isDraftReady()) {
     registerOutput.textContent =
-      "SVGと図形と宇宙の記憶を入力するとJSONが表示されます。";
+      t("previewNotReady");
     registerOutput.classList.remove("is-filled");
     if (registerCopyButton) {
       registerCopyButton.disabled = true;
@@ -597,10 +828,10 @@ function setStoryTitle(index = null) {
     return;
   }
   if (index === null) {
-    storyTitle.textContent = "宇宙の記憶";
+    storyTitle.textContent = t("storyTitle");
     return;
   }
-  storyTitle.textContent = `宇宙の記憶 No.${index}`;
+  storyTitle.textContent = t("storyTitleNumber", index);
 }
 
 function setSolveStory(message = "", visible = false) {
@@ -644,7 +875,7 @@ function renderSolveOptions(problems = problemsCache) {
   solveProblemSelect.innerHTML = "";
   if (problems.length === 0) {
     const option = document.createElement("option");
-    option.textContent = "登録された宇宙の謎がありません";
+    option.textContent = t("noProblemsOption");
     option.value = "";
     option.disabled = true;
     option.selected = true;
@@ -655,10 +886,10 @@ function renderSolveOptions(problems = problemsCache) {
     resetSolveGrid();
     clearSvgPreview(
       solveSvgPreview,
-      "ここに選択した宇宙の謎SVGが表示されます。"
+      t("selectedSvgPlaceholder")
     );
-    setSolveMeta("登録された宇宙の謎がありません。");
-    setSolveStatus("宇宙の謎を登録するとここで解答できます。");
+    setSolveMeta(t("noProblemsMeta"));
+    setSolveStatus(t("noProblemsStatus"));
     setSolveStory();
     return;
   }
@@ -666,7 +897,7 @@ function renderSolveOptions(problems = problemsCache) {
   problems.forEach((problem, index) => {
     const option = document.createElement("option");
     option.value = index.toString();
-    option.textContent = `宇宙の謎 ${index + 1}`;
+    option.textContent = t("problemName", index + 1);
     solveProblemSelect.appendChild(option);
   });
   if (currentSolveIndex !== null && currentSolveIndex < problems.length) {
@@ -674,7 +905,7 @@ function renderSolveOptions(problems = problemsCache) {
   } else {
     solveProblemSelect.value = "0";
   }
-  setSolveMeta(`登録数: ${problems.length}`);
+  setSolveMeta(t("registeredCount", problems.length));
   loadSelectedProblem(problems);
 }
 
@@ -689,9 +920,9 @@ function loadSelectedProblem(problems = problemsCache) {
     resetSolveGrid();
     clearSvgPreview(
       solveSvgPreview,
-      "ここに選択した宇宙の謎SVGが表示されます。"
+      t("selectedSvgPlaceholder")
     );
-    setSolveStatus("宇宙の謎を選択してください。");
+    setSolveStatus(t("selectPrompt"));
     setSolveStory();
     return;
   }
@@ -700,10 +931,10 @@ function loadSelectedProblem(problems = problemsCache) {
   renderSvgPreview(
     currentSolveProblem.svg,
     solveSvgPreview,
-    "ここに選択した宇宙の謎SVGが表示されます。"
+    t("selectedSvgPlaceholder")
   );
   resetSolveGrid();
-  setSolveStatus("回答を入力して提出してください。");
+  setSolveStatus(t("answerPrompt"));
   setSolveStory();
 }
 
@@ -753,23 +984,23 @@ function isShapeCountMatch(answerGrid, solutionGrid) {
 
 function handleSolveSubmit() {
   if (!currentSolveProblem) {
-    setSolveStatus("解く宇宙の謎を選択してください。", "error");
+    setSolveStatus(t("chooseProblem"), "error");
     setSolveStory();
     return;
   }
   const isCorrect = isShapeCountMatch(solveState, currentSolveProblem.grid);
   if (isCorrect) {
-    setSolveStatus("正解です！素晴らしい！", "success");
+    setSolveStatus(t("correct"), "success");
     const storyText = currentSolveProblem.story?.trim();
     setStoryTitle(currentSolveIndex + 1);
     setSolveStory(
-      storyText || "宇宙の記憶はまだ設定されていません。",
+      storyText || t("noStory"),
       true
     );
     triggerStoryReveal();
     setView("story");
   } else {
-    setSolveStatus("不正解です。もう一度チャレンジしてください。", "error");
+    setSolveStatus(t("incorrect"), "error");
     setSolveStory();
   }
 }
@@ -803,7 +1034,7 @@ function renderRegisteredProblems(problems = problemsCache) {
     const header = document.createElement("div");
     header.className = "registered-header";
     const title = document.createElement("h3");
-    title.textContent = `宇宙の謎 ${index + 1}`;
+    title.textContent = t("problemName", index + 1);
     const meta = document.createElement("span");
     meta.className = "registered-date";
     meta.textContent = formatDate(problem.createdAt);
@@ -832,11 +1063,11 @@ function renderRegisteredProblems(problems = problemsCache) {
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "delete-button";
-    deleteButton.textContent = "削除";
+    deleteButton.textContent = t("deleteButton");
     deleteButton.addEventListener("click", async () => {
       const target = problems[index];
       if (!target?.id) {
-        setRegisterStatus("削除対象のIDが見つかりません。", "error");
+        setRegisterStatus(t("deleteMissing"), "error");
         return;
       }
       try {
@@ -844,9 +1075,9 @@ function renderRegisteredProblems(problems = problemsCache) {
         problemsCache = problemsCache.filter((problem) => problem.id !== target.id);
         renderRegisteredProblems(problemsCache);
         renderSolveOptions(problemsCache);
-        setRegisterStatus(`現在の登録数: ${problemsCache.length}`);
+        setRegisterStatus(t("registerCount", problemsCache.length));
       } catch (error) {
-        setRegisterStatus(`削除に失敗しました: ${error.message}`, "error");
+        setRegisterStatus(t("deleteFailed", error.message), "error");
       }
     });
     actions.appendChild(deleteButton);
@@ -865,12 +1096,12 @@ function renderRegisteredProblems(problems = problemsCache) {
 
 async function handleRegister() {
   if (!currentSvgText) {
-    setRegisterStatus("宇宙の謎SVGをアップロードしてください。", "error");
+    setRegisterStatus(t("uploadSvg"), "error");
     return;
   }
   const filledCellCount = getFilledCellCount();
   if (filledCellCount === 0) {
-    setRegisterStatus("答えの図形を1つ以上入力してください。", "error");
+    setRegisterStatus(t("needShape"), "error");
     return;
   }
   const storyText = storyInput ? storyInput.value.trim() : "";
@@ -888,9 +1119,9 @@ async function handleRegister() {
     }
     renderRegisteredProblems(problemsCache);
     renderSolveOptions(problemsCache);
-    setRegisterStatus(`現在の登録数: ${problemsCache.length}`, "success");
+    setRegisterStatus(t("registerCount", problemsCache.length), "success");
   } catch (error) {
-    setRegisterStatus(`登録に失敗しました: ${error.message}`, "error");
+    setRegisterStatus(t("registerFailed", error.message), "error");
   }
 }
 
@@ -906,7 +1137,7 @@ if (questionSvgInput) {
       renderSvgPreview(
         currentSvgText,
         questionSvgPreview,
-        "ここに宇宙の謎SVGが表示されます。"
+        t("questionSvgPlaceholder")
       );
       syncAnswerPayload();
     };
@@ -931,46 +1162,47 @@ if (registerCopyButton) {
     }
     copyTextToClipboard(text)
       .then(() => {
-        setCopyStatus("JSONをコピーしました。", "success");
+        setCopyStatus(t("copySuccess"), "success");
       })
       .catch(() => {
-        setCopyStatus("コピーに失敗しました。", "error");
+        setCopyStatus(t("copyFailed"), "error");
       });
   });
 }
 
 if (exportProblemsButton) {
   exportProblemsButton.addEventListener("click", () => {
-    setRegisterStatus("JSON書き出しは廃止しました。Supabaseを直接ご利用ください。");
+    setRegisterStatus(t("exportRemoved"));
   });
 }
 
 if (importProblemsInput) {
   importProblemsInput.addEventListener("change", () => {
-    setRegisterStatus("JSON読み込みは廃止しました。Supabaseへ直接登録してください。");
+    setRegisterStatus(t("importRemoved"));
     importProblemsInput.value = "";
   });
 }
 
-clearSvgPreview(questionSvgPreview, "ここに宇宙の謎SVGが表示されます。");
+clearSvgPreview(questionSvgPreview, t("questionSvgPlaceholder"));
 clearSvgPreview(
   solveSvgPreview,
-  "ここに選択した宇宙の謎SVGが表示されます。"
+  t("selectedSvgPlaceholder")
 );
+applyLanguage();
 syncAnswerPayload();
 updateRegisterPreview();
 
 async function init() {
-  setSolveMeta("Supabaseから宇宙の謎を読み込み中...");
+  setSolveMeta(t("loading"));
   setView("solve");
   if (!supabaseClient) {
     const configError = getSupabaseConfigError();
     setRegisterStatus(
-      `Supabase設定エラー: ${configError}（supabase-config.jsを確認してください）`,
+      t("configPrefix", configError),
       "error"
     );
-    setSolveMeta(`読み込み不可: ${configError}`);
-    setSolveStatus("Supabase設定を修正後に再読み込みしてください。", "error");
+    setSolveMeta(t("unavailable", configError));
+    setSolveStatus(t("fixConfig"), "error");
     renderRegisteredProblems([]);
     renderSolveOptions([]);
     return;
@@ -978,7 +1210,7 @@ async function init() {
   try {
     problemsCache = await fetchProblemsFromSupabase();
     renderRegisteredProblems(problemsCache);
-    setRegisterStatus(`現在の登録数: ${problemsCache.length}`);
+    setRegisterStatus(t("registerCount", problemsCache.length));
     renderSolveOptions(problemsCache);
   } catch (error) {
     const rawMessage = error?.message || String(error);
@@ -989,11 +1221,11 @@ async function init() {
     ];
     const hasNetworkError = networkHints.some((hint) => rawMessage.includes(hint));
     const guidance = hasNetworkError
-      ? `読み込み失敗: ネットワークまたはURL解決に失敗しました。SUPABASE_URL を確認してください（現在: ${SUPABASE_URL}）。`
-      : `読み込み失敗: ${rawMessage}`;
+      ? t("loadFailedNetwork", SUPABASE_URL)
+      : t("loadFailed", rawMessage);
     setRegisterStatus(guidance, "error");
     setSolveMeta(guidance);
-    setSolveStatus("SupabaseのURL・APIキー・RLS設定を確認してください。", "error");
+    setSolveStatus(t("checkSupabase"), "error");
     renderRegisteredProblems([]);
     renderSolveOptions([]);
   }

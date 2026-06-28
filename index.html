@@ -9,156 +9,158 @@
 <body>
   <div class="space-planets" aria-hidden="true"></div>
   <div class="story-reveal" aria-hidden="true">
-    <span>宇宙の謎をひとつ解き明かした！</span>
+    <span data-i18n="story.reveal">宇宙の謎をひとつ解き明かした！</span>
   </div>
   <header class="hero">
-    <h1 class="hero-title" aria-label="OrigamiStory 宇宙の謎を解く">
+    <div class="language-switcher" aria-label="Language selector" data-i18n-aria-label="languageSelector">
+      <button type="button" class="language-button is-active" data-language="ja">日本語</button>
+      <button type="button" class="language-button" data-language="en">English</button>
+    </div>
+    <h1 class="hero-title" aria-label="OrigamiStory 宇宙の謎を解く" data-i18n-aria-label="heroAria">
       <span>OrigamiStory</span>
-      <span>宇宙の謎を解く</span>
+      <span data-i18n="hero.subtitle">宇宙の謎を解く</span>
     </h1>
-    <p>登録された宇宙の謎に対して4×4の図形を入力し、答え合わせを行います。</p>
+    <p data-i18n="hero.description">登録された宇宙の謎に対して4×4の図形を入力し、答え合わせを行います。</p>
   </header>
 
   <main>
     <section class="solve-panel" data-view="solve">
-      <h2>1. 宇宙の謎を選択</h2>
-      <p>登録されている宇宙の謎から解きたいものを選びます。</p>
+      <h2 data-i18n="solve1Title">1. 宇宙の謎を選択</h2>
+      <p data-i18n="solve1Body">登録されている宇宙の謎から解きたいものを選びます。</p>
       <div class="controls">
         <label class="select-label">
-          <span>宇宙の謎一覧</span>
-          <select id="solve-problem-select" aria-label="宇宙の謎選択"></select>
+          <span data-i18n="solveLabel">宇宙の謎一覧</span>
+          <select id="solve-problem-select" aria-label="宇宙の謎選択" data-i18n-aria-label="solveSelectAria"></select>
         </label>
       </div>
       <p class="solve-meta" id="solve-meta" role="status" aria-live="polite"></p>
     </section>
 
     <section class="solve-panel" data-view="solve">
-      <h2>2. 宇宙の謎の表示</h2>
-      <p>
+      <h2 data-i18n="solve2Title">2. 宇宙の謎の表示</h2>
+      <p data-i18n="solve2Body">
         下の画像は折り紙の展開図です。<br>
         赤線→山折り(Mountain)<br>
         青線→谷折り(Valley)<br>
         折った後にできる形を下のパネルに入力して下さい。
       </p>
-      <div class="svg-preview" id="solve-svg-preview" aria-label="選択中の宇宙の謎SVG">
+      <div class="svg-preview" id="solve-svg-preview" aria-label="選択中の宇宙の謎SVG" data-i18n-aria-label="solveSvgPreviewAria">
         <p>ここに選択した宇宙の謎SVGが表示されます。</p>
       </div>
     </section>
 
     <section class="solve-panel" data-view="solve">
-      <h2>3. 図形で回答</h2>
-      <p>クリックで「空白 → 正方形 → 三角形」へ切り替えます。</p>
-      <div class="grid grid-tight" id="solve-grid" aria-label="回答用4x4図形グリッド"></div>
+      <h2 data-i18n="solve3Title">3. 図形で回答</h2>
+      <p data-i18n="shapeHelp">クリックで「空白 → 正方形 → 三角形」へ切り替えます。</p>
+      <div class="grid grid-tight" id="solve-grid" aria-label="回答用4x4図形グリッド" data-i18n-aria-label="solveGridAria"></div>
       <div class="controls">
-        <button type="button" id="solve-reset-grid">図形をリセット</button>
+        <button type="button" id="solve-reset-grid" data-i18n="resetShape">図形をリセット</button>
       </div>
     </section>
 
     <section class="solve-panel" data-view="solve">
-      <h2>4. 回答を提出</h2>
-      <p>入力された図形が登録された答えと一致するかを判定します。</p>
+      <h2 data-i18n="solve4Title">4. 回答を提出</h2>
+      <p data-i18n="solve4Body">入力された図形が登録された答えと一致するかを判定します。</p>
       <div class="controls">
-        <button type="button" id="submit-answer">回答を提出する</button>
+        <button type="button" id="submit-answer" data-i18n="submitAnswer">回答を提出する</button>
       </div>
       <p class="solve-status" id="solve-result" role="status" aria-live="polite">
-        宇宙の謎を選択して回答を入力してください。
+        <span data-i18n="initialSolve">宇宙の謎を選択して回答を入力してください。</span>
       </p>
     </section>
 
     <section class="story-view" data-view="story" hidden>
       <div class="story-content">
         <h2 id="story-title">宇宙の記憶</h2>
-        <p class="story-lead">正解したときだけ、物語が宇宙の中央に現れます。</p>
+        <p class="story-lead" data-i18n="storyLead">正解したときだけ、物語が宇宙の中央に現れます。</p>
         <div class="solve-story story-display" id="solve-story" role="status" aria-live="polite" hidden></div>
         <div class="controls">
-          <button type="button" id="story-back">宇宙の謎に戻る</button>
+          <button type="button" id="story-back" data-i18n="storyBack">宇宙の謎に戻る</button>
         </div>
       </div>
     </section>
 
     <section class="upload-panel" data-view="register" hidden>
-      <h2>1. SVGをアップロード</h2>
+      <h2 data-i18n="uploadTitle">1. SVGをアップロード</h2>
       <div class="upload-row">
         <label class="file-label">
-          <span>宇宙の謎SVG</span>
+          <span data-i18n="svgLabel">宇宙の謎SVG</span>
           <input type="file" id="question-svg-input" accept="image/svg+xml" />
         </label>
       </div>
       <div class="controls">
-        <button type="button" id="reset-question">SVGをクリア</button>
+        <button type="button" id="reset-question" data-i18n="clearSvg">SVGをクリア</button>
       </div>
     </section>
 
     <section class="input-panel" data-view="register" hidden>
-      <h2>2. 図形を入力 (4×4)</h2>
-      <p>クリックで「空白 → 正方形 → 三角形」へ切り替えます。1つでも入力すれば登録できます。</p>
+      <h2 data-i18n="inputTitle">2. 図形を入力 (4×4)</h2>
+      <p data-i18n="inputBody">クリックで「空白 → 正方形 → 三角形」へ切り替えます。1つでも入力すれば登録できます。</p>
       <div class="grid grid-tight" id="answer-grid" aria-label="4x4 shape grid"></div>
       <input type="hidden" id="answer-json" name="answer-json" />
       <div class="controls">
-        <button type="button" id="reset-grid">図形をリセット</button>
+        <button type="button" id="reset-grid" data-i18n="resetShape">図形をリセット</button>
       </div>
     </section>
 
     <section class="story-panel" data-view="register" hidden>
-      <h2>3. 宇宙の記憶を入力</h2>
-      <p>宇宙の謎を解いたときに表示したい宇宙の記憶を入力します。</p>
+      <h2 data-i18n="storyInputTitle">3. 宇宙の記憶を入力</h2>
+      <p data-i18n="storyInputBody">宇宙の謎を解いたときに表示したい宇宙の記憶を入力します。</p>
       <label class="story-input">
-        <span>宇宙の記憶本文</span>
-        <textarea id="story-input" rows="5" placeholder="例: 正解の先に広がる物語をここに入力します。"></textarea>
+        <span data-i18n="storyInputLabel">宇宙の記憶本文</span>
+        <textarea id="story-input" rows="5" placeholder="例: 正解の先に広がる物語をここに入力します。" data-i18n-placeholder="storyPlaceholder"></textarea>
       </label>
     </section>
 
     <section class="preview-panel" data-view="register" hidden>
-      <h2>4. SVGプレビュー</h2>
-      <div class="svg-preview" id="question-svg-preview" aria-label="SVG preview">
+      <h2 data-i18n="previewTitle">4. SVGプレビュー</h2>
+      <div class="svg-preview" id="question-svg-preview" aria-label="SVG preview" data-i18n-aria-label="questionSvgPreviewAria">
         <p>ここにアップロードしたSVGが表示されます。</p>
       </div>
     </section>
 
     <section class="register-panel" data-view="register" hidden>
-      <h2>5. 宇宙の謎を登録</h2>
-      <p>宇宙の謎SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
+      <h2 data-i18n="registerTitle">5. 宇宙の謎を登録</h2>
+      <p data-i18n="registerBody">宇宙の謎SVGと答え（4×4の図形）を1つ以上入力したら登録できます。</p>
       <div class="controls">
-        <button type="button" id="register-problem">登録する</button>
+        <button type="button" id="register-problem" data-i18n="registerButton">登録する</button>
       </div>
       <p class="register-status" id="register-status" role="status" aria-live="polite">
-        まだ登録されていません。
+        <span data-i18n="registerInitial">まだ登録されていません。</span>
       </p>
       <div class="register-json">
         <div class="register-json-header">
-          <p class="register-json-title">JSONプレビュー</p>
-          <button type="button" class="ghost-button" id="register-copy" disabled>
+          <p class="register-json-title" data-i18n="jsonPreview">JSONプレビュー</p>
+          <button type="button" class="ghost-button" id="register-copy" data-i18n="copy" disabled>
             コピー
           </button>
         </div>
-        <pre class="code-sample register-output" id="register-output" aria-label="入力内容のJSON">
-SVGと図形と宇宙の記憶を入力するとJSONが表示されます。
-        </pre>
+        <pre class="code-sample register-output" id="register-output" aria-label="入力内容のJSON" data-i18n-aria-label="registerOutputAria">SVGと図形と宇宙の記憶を入力するとJSONが表示されます。</pre>
         <p class="copy-status" id="register-copy-status" role="status" aria-live="polite"></p>
       </div>
     </section>
 
     <section class="registered-panel" data-view="register" hidden>
-      <h2>6. 登録済みの宇宙の謎</h2>
-      <p>登録した宇宙の謎を一覧で確認し、不要なものを削除できます。</p>
+      <h2 data-i18n="registeredTitle">6. 登録済みの宇宙の謎</h2>
+      <p data-i18n="registeredBody">登録した宇宙の謎を一覧で確認し、不要なものを削除できます。</p>
       <div class="controls">
-        <button type="button" class="ghost-button" id="export-problems-json">JSONを書き出す</button>
+        <button type="button" class="ghost-button" id="export-problems-json" data-i18n="exportJson">JSONを書き出す</button>
         <label class="ghost-button">
-          JSONを読み込む
+          <span id="import-problems-label" data-i18n="importJson">JSONを読み込む</span>
           <input type="file" id="import-problems-json" accept="application/json" hidden />
         </label>
       </div>
       <div class="registered-meta">
-        <span>登録数:</span>
+        <span data-i18n="countLabel">登録数:</span>
         <strong id="registered-count">0</strong>
       </div>
       <div class="registered-list" id="registered-list" aria-live="polite"></div>
-      <p class="registered-empty" id="registered-empty">登録済みの宇宙の謎はまだありません。</p>
+      <p class="registered-empty" id="registered-empty" data-i18n="emptyRegistered">登録済みの宇宙の謎はまだありません。</p>
     </section>
   </main>
 
   <footer>
-    <p>OrigamiStory - 宇宙の謎を解く</p>
+    <p data-i18n="footer.title">OrigamiStory - 宇宙の謎を解く</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

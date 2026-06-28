@@ -982,3 +982,29 @@ footer {
     max-width: 100%;
   }
 }
+
+.language-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.language-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(16, 22, 46, 0.7);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.55rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.language-button:hover,
+.language-button:focus-visible,
+.language-button.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(68, 242, 255, 0.35);
+  transform: translateY(-1px);
+}

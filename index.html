@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,8 +13,8 @@
   </div>
   <header class="hero">
     <div class="language-switcher" aria-label="Language selector" data-i18n-aria-label="languageSelector">
-      <button type="button" class="language-button is-active" data-language="ja">日本語</button>
-      <button type="button" class="language-button" data-language="en">English</button>
+      <button type="button" class="language-button" data-language="ja">日本語</button>
+      <button type="button" class="language-button is-active" data-language="en">English</button>
     </div>
     <h1 class="hero-title" aria-label="OrigamiStory 宇宙の謎を解く" data-i18n-aria-label="heroAria">
       <span>OrigamiStory</span>
@@ -107,8 +107,12 @@
       <h2 data-i18n="storyInputTitle">3. 宇宙の記憶を入力</h2>
       <p data-i18n="storyInputBody">宇宙の謎を解いたときに表示したい宇宙の記憶を入力します。</p>
       <label class="story-input">
-        <span data-i18n="storyInputLabel">宇宙の記憶本文</span>
+        <span data-i18n="storyInputLabelJa">宇宙の記憶（日本語）</span>
         <textarea id="story-input" rows="5" placeholder="例: 正解の先に広がる物語をここに入力します。" data-i18n-placeholder="storyPlaceholder"></textarea>
+      </label>
+      <label class="story-input">
+        <span data-i18n="storyInputLabelEn">宇宙の記憶（英語）</span>
+        <textarea id="story-input-en" rows="5" placeholder="Example: Enter the English version of the story here." data-i18n-placeholder="storyPlaceholderEn"></textarea>
       </label>
     </section>
 
@@ -165,6 +169,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js?v=20260321"></script>
+  <script src="app.js?v=20260702"></script>
 </body>
 </html>

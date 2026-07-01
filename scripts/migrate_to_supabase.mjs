@@ -21,6 +21,7 @@ function normalizeProblem(problem) {
     svg: problem.svg,
     grid: problem.grid,
     story: problem.story ?? "",
+    story_en: problem.story_en ?? problem.storyEn ?? "",
     created_at: problem.createdAt ?? problem.created_at ?? new Date().toISOString()
   };
 }

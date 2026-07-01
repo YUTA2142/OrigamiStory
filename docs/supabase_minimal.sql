@@ -39,6 +39,7 @@ create table if not exists public.problems (
   svg text not null,
   grid public.cell_state[4][4] not null,
   story text not null default '',
+  story_en text not null default '',
   created_at timestamptz not null default now(),
   constraint problems_grid_has_answer check (public.grid_has_non_empty(grid))
 );

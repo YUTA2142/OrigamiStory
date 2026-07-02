@@ -31,6 +31,7 @@ create table if not exists public.problems (
   svg text not null,
   grid cell_state[4][4] not null,
   story text not null default '',
+  story_en text not null default '',
   created_at timestamptz not null default now(),
 
   -- empty only is not allowed; at least one non-empty cell required

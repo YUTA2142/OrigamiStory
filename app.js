@@ -15,6 +15,7 @@ const registeredCount = document.getElementById("registered-count");
 const exportProblemsButton = document.getElementById("export-problems-json");
 const importProblemsInput = document.getElementById("import-problems-json");
 const storyInput = document.getElementById("story-input");
+const storyInputEn = document.getElementById("story-input-en");
 const solveProblemSelect = document.getElementById("solve-problem-select");
 const solveSvgPreview = document.getElementById("solve-svg-preview");
 const solveGridElement = document.getElementById("solve-grid");
@@ -78,6 +79,7 @@ const I18N = {
     solveSvgPreviewAria: "選択中の宇宙の謎SVG",
     solveGridAria: "回答用4x4図形グリッド",
     storyPlaceholder: "例: 正解の先に広がる物語をここに入力します。",
+    storyPlaceholderEn: "例: 英語版の物語をここに入力します。",
     questionSvgPreviewAria: "SVGプレビュー",
     registerOutputAria: "入力内容のJSON",
     previewNotReady: "SVGと図形と宇宙の記憶を入力するとJSONが表示されます。"
@@ -129,6 +131,7 @@ const I18N = {
     solveSvgPreviewAria: "Selected space mystery SVG",
     solveGridAria: "4x4 answer shape grid",
     storyPlaceholder: "Example: Enter the story that unfolds beyond the correct answer.",
+    storyPlaceholderEn: "Example: Enter the English version of the story here.",
     questionSvgPreviewAria: "SVG preview",
     registerOutputAria: "Input JSON",
     previewNotReady: "Enter an SVG, shapes, and a cosmic memory to preview the JSON."
@@ -160,6 +163,8 @@ const STATIC_TEXT = {
     "storyInputTitle": "3. 宇宙の記憶を入力",
     "storyInputBody": "宇宙の謎を解いたときに表示したい宇宙の記憶を入力します。",
     "storyInputLabel": "宇宙の記憶本文",
+    "storyInputLabelJa": "宇宙の記憶（日本語）",
+    "storyInputLabelEn": "宇宙の記憶（英語）",
     "previewTitle": "4. SVGプレビュー",
     "registerTitle": "5. 宇宙の謎を登録",
     "registerBody": "宇宙の謎SVGと答え（4×4の図形）を1つ以上入力したら登録できます。",
@@ -197,6 +202,8 @@ const STATIC_TEXT = {
     "storyInputTitle": "3. Enter a Cosmic Memory",
     "storyInputBody": "Enter the cosmic memory to show after this mystery is solved.",
     "storyInputLabel": "Cosmic memory text",
+    "storyInputLabelJa": "Cosmic memory (Japanese)",
+    "storyInputLabelEn": "Cosmic memory (English)",
     "previewTitle": "4. SVG Preview",
     "registerTitle": "5. Register the Space Mystery",
     "registerBody": "Register after adding a space mystery SVG and at least one answer shape in the 4×4 grid.",
@@ -235,7 +242,7 @@ function refreshInitialStatuses() {
   }
 }
 const storedLanguage = getStoredLanguage();
-let currentLanguage = I18N[storedLanguage] ? storedLanguage : "ja";
+let currentLanguage = I18N[storedLanguage] ? storedLanguage : "en";
 function t(key, ...args) {
   const dictionary = I18N[currentLanguage] || I18N.ja;
   const staticDictionary = STATIC_TEXT[currentLanguage] || STATIC_TEXT.ja;
@@ -412,6 +419,7 @@ function normalizeProblem(problem) {
     svg: problem.svg,
     grid: problem.grid,
     story: typeof problem.story === "string" ? problem.story : "",
+    storyEn: typeof problem.story_en === "string" ? problem.story_en : "",
     createdAt: problem.created_at || problem.createdAt || ""
   };
 }
@@ -422,7 +430,7 @@ async function fetchProblemsFromSupabase() {
   }
   const { data, error } = await supabaseClient
     .from("problems")
-    .select("id, svg, grid, story, created_at")
+    .select("*")
     .order("created_at", { ascending: true });
   if (error) {
     throw error;
@@ -440,10 +448,11 @@ async function createProblemInSupabase(payload) {
       {
         svg: payload.svg,
         grid: payload.grid,
-        story: payload.story
+        story: payload.story,
+        story_en: payload.storyEn || ""
       }
     ])
-    .select("id, svg, grid, story, created_at")
+    .select("*")
     .single();
   if (error) {
     throw error;
@@ -621,6 +630,9 @@ if (languageButtons.length) {
       renderSolveOptions(problemsCache);
       renderRegisteredProblems(problemsCache);
       setStoryTitle(currentSolveIndex === null ? null : currentSolveIndex + 1);
+      if (currentSolveProblem && solveStory && !solveStory.hidden) {
+        setSolveStory(getProblemStory(currentSolveProblem) || t("noStory"), true);
+      }
     });
   });
 }
@@ -774,13 +786,19 @@ function getDraftPayload() {
   return {
     svg: currentSvgText,
     grid: answerState.map((row) => row.slice()),
-    story: storyInput ? storyInput.value.trim() : ""
+    story: storyInput ? storyInput.value.trim() : "",
+    storyEn: storyInputEn ? storyInputEn.value.trim() : ""
   };
 }
 
 function isDraftReady() {
   const storyText = storyInput ? storyInput.value.trim() : "";
-  return Boolean(currentSvgText) && getFilledCellCount() > 0 && storyText.length > 0;
+  const storyTextEn = storyInputEn ? storyInputEn.value.trim() : "";
+  return (
+    Boolean(currentSvgText) &&
+    getFilledCellCount() > 0 &&
+    (storyText.length > 0 || storyTextEn.length > 0)
+  );
 }
 
 function updateRegisterPreview() {
@@ -845,6 +863,18 @@ function setSolveMeta(message) {
   if (solveMeta) {
     solveMeta.textContent = message;
   }
+}
+
+function getProblemStory(problem) {
+  if (!problem) {
+    return "";
+  }
+  const englishStory = (problem.storyEn || "").trim();
+  const japaneseStory = (problem.story || "").trim();
+  if (currentLanguage === "en") {
+    return englishStory || japaneseStory;
+  }
+  return japaneseStory || englishStory;
 }
 
 function setStoryTitle(index = null) {
@@ -1015,7 +1045,7 @@ function handleSolveSubmit() {
   const isCorrect = isShapeCountMatch(solveState, currentSolveProblem.grid);
   if (isCorrect) {
     setSolveStatus(t("correct"), "success");
-    const storyText = currentSolveProblem.story?.trim();
+    const storyText = getProblemStory(currentSolveProblem);
     setStoryTitle(currentSolveIndex + 1);
     setSolveStory(
       storyText || t("noStory"),
@@ -1075,10 +1105,11 @@ function renderRegisteredProblems(problems = problemsCache) {
     content.appendChild(svgWrapper);
     content.appendChild(gridWrapper);
 
-    if (problem.story) {
+    const registeredStory = getProblemStory(problem);
+    if (registeredStory) {
       const story = document.createElement("p");
       story.className = "registered-story";
-      story.textContent = problem.story;
+      story.textContent = registeredStory;
       content.appendChild(story);
     }
 
@@ -1132,7 +1163,8 @@ async function handleRegister() {
   const payload = {
     svg: currentSvgText,
     grid: answerState.map((row) => row.slice()),
-    story: storyText
+    story: storyText,
+    storyEn: storyInputEn ? storyInputEn.value.trim() : ""
   };
   try {
     const created = await createProblemInSupabase(payload);
@@ -1171,6 +1203,12 @@ if (questionSvgInput) {
 
 if (storyInput) {
   storyInput.addEventListener("input", () => {
+    updateRegisterPreview();
+  });
+}
+
+if (storyInputEn) {
+  storyInputEn.addEventListener("input", () => {
     updateRegisterPreview();
   });
 }
